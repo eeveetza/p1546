@@ -1,4 +1,4 @@
-P1546 Version 2 (09.08.17)
+P1546 Version 5.14 (01.05.19)
 
 MATLAB implementation of Recommendation ITU-R P.1546-5
 
@@ -32,12 +32,15 @@ Files and subfolders in the distribution .zip package.
 
 UPDATES AND FIXES
 -----------------
+Version 3 (01.05.19)
+    - Steps 1-16 use d = 1 km in interpolation for distances 0.04 < d < 1 km as per ITU-R P.1546-5
+    - Introduced a caveat in smooth_earth_heights when only two points exist in the profile
 Version 2 (09.08.17)
-        - Introduced new validation examples that exercise almost all of the method from ITU-R P.1546-5
-        - The validation examples contain an indication whether calculations are performed for cold or warm seas
-        - Designation to 'sea and coastal' and 'land' done according to the radio-meteorological code only,
-          and not anymore according to the coverage code in validateP1546.m
-	- The format of validation examples in ./validation_profiles aligned with the newest SG 3 fdata format
+    - Introduced new validation examples that exercise almost all of the method from ITU-R P.1546-5
+    - The validation examples contain an indication whether calculations are performed for cold or warm seas
+    - Designation to 'sea and coastal' and 'land' done according to the radio-meteorological code only,
+      and not anymore according to the coverage code in validateP1546.m
+	- The format of validation examples in ./validation_profiles aligned with the newest SG 3 data format
 	- Corrected compatibility issue with Matlab version 2016 (an newer) occurring in Step_17a when PTx = []
 	- Corrected a typo in eq. (26) of Step_11
 	- Corrected a bug in Dh1 computation in function step82 for sea path

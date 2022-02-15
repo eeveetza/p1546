@@ -15,7 +15,7 @@ validation_profiles;flat_100km.csv;1;-35.23;-35.23;0.00
 validation_profiles;flat_100km.csv;2;12.60;12.60;-0.00
 validation_profiles;flat_10km.csv;1;63.03;63.03;-0.00
 validation_profiles;flat_1km.csv;1;94.78;94.78;-0.00
-validation_profiles;flat_p1km.csv;1;124.32;124.32;0.00
+validation_profiles;flat_p1km.csv;1;123.28;123.28;0.00
 validation_profiles;land_flat_adjsea_10km.csv;1;87.54;87.54;-0.00
 validation_profiles;land_flat_adjsea_10km.csv;2;87.27;87.27;-0.00
 validation_profiles;land_neg_h1_urban_10km.csv;1;2.45;2.45;-0.00
@@ -35,3 +35,4 @@ validation_profiles;rburg_los_subpath_diffraction.csv;3;40.03;40.03;0.00
 validation_profiles;rburg_with_clutter.csv;1;21.78;21.78;-0.00
 validation_profiles;rburg_with_clutter.csv;2;15.58;15.58;0.00
 validation_profiles;rburg_with_clutter.csv;3;5.36;5.36;-0.00
+validation_profiles;srg_land_637m.csv;1;92.75;92.75;-0.00

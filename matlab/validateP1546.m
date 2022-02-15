@@ -50,7 +50,7 @@ fileformat='Fryderyk_csv';
 
 % Clutter code type 
 
-ClutterCode = 'GlobCover';
+ClutterCode = 'P1546';
 
 %     ClutterCode='default'; % default clutter code assumes land, rural area with R1 = R2 = 10;
 %     ClutterCode='TBD'
@@ -105,7 +105,7 @@ for iname = 1 : length(filenames)
     sg3db.pathinfo = flag_path;
     
     % update the data structure with the Tx Power (kW)
-    for kindex=1:sg3db.Ndata;
+    for kindex=1:sg3db.Ndata
         PERP= sg3db.ERPMaxTotal(kindex);
         HRED= sg3db.HRPred(kindex);
         PkW=10^(PERP/10)*1e-3; %kW

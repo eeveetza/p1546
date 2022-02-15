@@ -1,0 +1,66 @@
+srg_land_630m
+Tx LAT:,47.5019
+Tx LON:,8.7025
+Rx LAT:,47.5064
+Rx LON:,8.7078
+DATE PROFILE TAKEN:,    09.24.2008
+SOURCE MAP- SCALE: 1:,25000
+SOURCE DTBS-RES.(km):,
+First Point TX or RX:, T
+Tot. Path Length(km):,0.6373
+Tx site name:, Winterth  
+Rx site name:,20080924_0034_MP07
+Tx Country:,SUI
+Tx Station Code:,
+#,
+#,
+#
+#
+{Begin of Meteorology}
+Tx rain zone:,
+Rx rain zone:,
+Minimum monthly mean surface refractivity Nsmin (N-units):,
+Average annual sea-level refractivity No (N-units):,
+Other meteorological data:,
+Start date (yyyy.mm.dd):,
+End date (yyyy.mm.dd):,
+Start time daily recordings (hh:mm):,
+End time daily recordings (hh:mm):,
+Total measurement time d (days):,
+Sampling continuous/intermittent (C/I):,
+Sampling interval (s):,
+{End of meteorology}
+#,,,,,,
+#Profile,,,,,,
+Distance from first point,Gnd hgt a.m.s.l.,Coverage Code, Ground cover height,Radio Met Code,,
+[km],[m],(1-water/sea 2-open/rural 3-suburban 4-urban/trees/forest 5-dense urban),[m],(1 3 4)
+{Begin of Profile}
+Number of Points:, 20
+   0.000,  543.7,0,,4,,
+   0.047,  540.8,0,,4,,
+   0.052,  540.6,0,,4,,
+   0.115,  528.0,0,,4,,
+   0.129,  523.2,0,,4,,
+   0.178,  505.8,0,,4,,
+   0.211,  492.8,0,,4,,
+   0.242,  478.5,0,,4,,
+   0.293,  458.9,0,,4,,
+   0.305,  455.3,0,,4,,
+   0.368,  440.3,0,,4,,
+   0.374,  439.4,0,,4,,
+   0.431,  432.2,0,,4,,
+   0.456,  430.3,0,,4,,
+   0.494,  428.7,0,,4,,
+   0.538,  426.1,0,,4,,
+   0.558,  425.8,0,,4,,
+   0.619,  427.9,0,,4,,
+   0.621,  427.9,0,,4,,
+   0.637,  428.1,0,,4,,
+{End of Profile}
+#
+Frequency,Tx antenna height,Tx antenna effective height,Rx antenna height,Polarisation HVC:1 2 3,Txdbm,MaxLb,Txgn,Rxgn,Rx antenna D/O,ERP_max_horiz,ERP_max_vertical,ERP_max_total,HRP_red,Time percentage,Losses relative to free space,Measured field strength,Basic transmission loss,RX height gain group,Is top height in group
+[MHz],[m],[m],[m],,[dBm],[dB],[dBi],[dBi],,[dBW],[dBW],[dBW],[dB],[%],[dB],[dBuV/m],[dB],,
+{Begin of Measurements}
+1
+  562.000, 95.5,, 3.34, 2,,,,,,,  40.0,  40.0,  18.3, 50,, 92.7525,111.542,-1,0
+{End of Measurements}
