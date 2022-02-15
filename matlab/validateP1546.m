@@ -12,6 +12,9 @@
 % Author: Ivica Stevanovic (IS), Federal Office of Communications, Switzerland
 % Revision History:
 % Date            Revision
+% 12Jul2021       Renaming subfolder "src" into "private" which is automatically in the MATLAB search path
+%                 Simplified handling of optional input arguments
+%                 Made sure htter and hrter are set for all paths (correction suggested by Alastair Taylor).
 % 08Apr2020       Using the field "First Point TX or RX:" to decide whether
 %                 to swap Tx/Rx accoding to Annex 5 Paragraph 1.1 or not
 % 25Feb2020       Implementation of P1546-6 Annex 5 Paragraph 1.1 on terminal designation
@@ -34,8 +37,8 @@ close all;
 fclose all;
 
 
-% add path to the folder where the functions are defined
-addpath('./src')
+% % add path to the folder where the functions are defined
+% addpath('./src')
 
 % immediate printing to command window in octave
 if (isOctave)
@@ -328,11 +331,11 @@ for iname = 1 : length(filenames)
         sg3db.ha= hhTx;
         sg3db.htter = [];
         sg3db.hrter = [];
-        if (xx<1)
+        %if (xx<1)
             sg3db.htter = h_gamsl(1);
             sg3db.hrter = h_gamsl(end);
             
-        end
+        %end
         
         
         sg3db.RxClutterCodeP1546 = RxP1546Clutter;

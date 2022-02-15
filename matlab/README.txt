@@ -1,4 +1,4 @@
-P1546 Version 6.1 (08.04.20)
+P1546 Version 6.2 (12.07.21)
 
 MATLAB implementation of Recommendation ITU-R P.1546-6
 
@@ -10,7 +10,7 @@ Files and subfolders in the distribution .zip package.
  P1546FieldStrMixed.m	     - MATLAB function implementing Recommendation ITU-R P.1546-6
 
  validateP1546.m             - MATLAB script used to validate the implementation of
-                               Recommendation ITU-R P.1546-5 as defined in the file
+                               Recommendation ITU-R P.1546-6 as defined in the file
                                P1546FieldStrMixed.m using a set of terrain profiles
                                provided in the folder ./validation_profiles/
 
@@ -25,20 +25,28 @@ Files and subfolders in the distribution .zip package.
                                computations for the set of terrain profiles defined
                                in the folder ./validation_profiles/
 
- ./src/                      - Folder containing the functions used by validateP1546.m to read
+ ./private/                  - Folder containing the functions used by validateP1546.m to read
                                the test terrain profiles and compute all the parameters required
                                as arguments of the function P1546FieldStrMixed
 
 
 UPDATES AND FIXES
 -----------------
+Version 6.2 (12.07.21)
+    - Simplified handling of optional input arguments
+    - Renaming subfolder "src" into "private" which is automatically in the MATLAB search path
+    - Minor editorial corrections
+    - Correction of the coverage code column in validation profile b2iseac_sea
+
 Version 6.1 (08.04.20)
-    - Introduced changes according to ITU-R P.1546-6: 
-           Upper frequency limit, representative clutter heights, location variability in Step_18a
+    - Introduced changes according to ITU-R P.1546-6:
+          Upper frequency limit, representative clutter heights, location variability in Step_18a
     - Additional validation examples to test implementation of P1546-6 Annex 5 Paragraph 1.1 (terminal designation)
+
 Version 3 (01.05.19)
     - Steps 1-16 use d = 1 km in interpolation for distances 0.04 < d < 1 km as per ITU-R P.1546-5
     - Introduced a caveat in smooth_earth_heights when only two points exist in the profile
+
 Version 2 (09.08.17)
     - Introduced new validation examples that exercise almost all of the method from ITU-R P.1546-5
     - The validation examples contain an indication whether calculations are performed for cold or warm seas
@@ -49,7 +57,6 @@ Version 2 (09.08.17)
 	- Corrected a typo in eq. (26) of Step_11
 	- Corrected a bug in Dh1 computation in function step82 for sea path
 	- Changed the naming: test_profiles -> validation_profiles, test_results -> validation results
-
 
 Version 1 (26.05.16)
      - Initial implementation

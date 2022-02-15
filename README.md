@@ -2,7 +2,7 @@
 
 This code repository contains a MATLAB/Octave software implementation of  [Recommendation ITU-R P.1546-6](https://www.itu.int/rec/R-REC-P.1546/en) with a method for point-to-area predictions for terrestrial services in the frequency range 30 MHz to 4000 MHz.  
 
-This version of the code corresponds to the reference version of the code approved by ITU-R Working Party 3K and published on ITU-R SG 3 Software, Data, and Validation Web Page as digital supplement to [Recommendation ITU-R P.1546](https://www.itu.int/rec/R-REC-P.1546/en).
+This version of the code is not yet approved by ITU-R Working Party 3K. The reference version of this code (as approved by ITU-R Working Party 3K) is published on [ITU-R SG 3 Software, Data, and Validation Web Page](https://www.itu.int/en/ITU-R/study-groups/rsg3/Pages/iono-tropo-spheric.aspx) as digital supplement to [Recommendation ITU-R P.1546](https://www.itu.int/rec/R-REC-P.1546/en).
 
 The following table describes the structure of the folder `./matlab/` containing the MATLAB/Octave implementation of Recommendation ITU-R P.1546.
 
@@ -12,26 +12,25 @@ The following table describes the structure of the folder `./matlab/` containing
 |`validateP1546.m`          | MATLAB script used to validate the implementation of Recommendation ITU-R P.1546-6 in `P1546FieldStrMixed.m`             |
 |`./validation_profiles/`    | Folder containing a proposed set of terrain profiles and inputs for validation of MATLAB implementation (or any other software implementation) of this Recommendation |
 |`./validation_results/`	   | Folder containing all the results written during the transmission loss computations for the set of terrain profiles defined in the folder `./validation_profiles/` |
-|`./src/`   |             Folder containing the functions used by `validateP1546.m` to read the test terrain profiles and compute all the parameters required as arguments of the function `P1546FieldStrMixed`|
+|`./private/`   |             Folder containing the functions used by `validateP1546.m` to read the test terrain profiles and compute all the parameters required as arguments of the function `P1546FieldStrMixed`|
 
 ## Function Call
 
 The function `P1546FieldStrMixed` can be called
 
-1. by invoking only the first nine required input arguments:
-~~~ 
-[Ep, Lb] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo);
+1. by invoking only the required input arguments:
 ~~~
-2. by explicitly invoking all the input arguments:
+[Ep, Lb] = P1546FieldStrMixed(f, t, heff, h2, R2, area, d_v, path_c, pathinfo);
 ~~~
-[Ep, Lb] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo, ...
-                         q,wa,PTx,ha,hb,R1,tca,htter,hrter,eff1,eff2,debug,fidlog);
-~~~ 
-3. or by explicitly omitting some of the optional input arguments:
-~~~ 
-[Ep, Lb] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo, ...
-                       q,wa,PTx,[],[],[],[],[],[],[],[],debug,fidlog); 
-~~~ 
+
+2. by invoking additional optional arguments using Name-Value Pair Arguments. Name is the argument name and Value is the
+corresponding value. Name must appear inside quotes. You can specify several name and value pair arguments in any order as
+Name1,Value1,...,NameN,ValueN:
+~~~
+[Ep, Lb] = P1546FieldStrMixed(f, t, heff, h2, R2, area, d_v, path_c, pathinfo, ...
+                            'q', 50, 'wa', 27, 'Ptx', 1, 'ha', 100);
+~~~  
+
 ## Required input arguments of function `P1546FieldStrMixed`
 
 | Variable          | Type   | Units | Limits       | Description  |

@@ -68,6 +68,31 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 %
 % L:        dB      Path loss
 %
+%
+% How to use:
+% 
+% 1) by invoking only the first nine required input arguments:
+% 
+%   [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo);
+%
+% 2) by invoking optional arguments in addition to the first nine required arguments
+%  using Name-Value Pair Arguments. Name is the argument name and Value is the
+%  corresponding value. Name must appear inside quotes. You can specify
+%  several name and value pair arguments in any order as
+%  Name1,Value1,...,NameN,ValueN. 
+%
+%  [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo, ...
+%                              'q', 50, 'wa', 27, 'Ptx', 1, 'ha', 100);
+%
+
+
+% Examples:
+%   [E, L] = P1546FieldStrMixed(2700,50,1600,1.5,10,'Suburban',20,'Land',1);
+%
+%   [E, L] = P1546FieldStrMixed(2700,50,1600,1.5,10,'Suburban',20,'Land',1, 'q', 50, 'wa', 27, 'Ptx', 1, 'ha', 100);
+% 
+% Numbers refer to Rec. ITU-R P.1546-6
+%
 % This function implements ITU-R P.1546-6 recommendation,
 % describing a method for point-to-area radio propagation predictions for
 % terrestrial services in the frequency range 30 MHz to 4000 MHz. It is
@@ -89,32 +114,13 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 %  - Annex 5, Section 4.3a): C_h1 calculation (terrain database is
 %  available and the potential of discontinuities around h1 = 0 is of no
 %  concern)
-%
-% How to use:
-% 
-% 1) by invoking only the first nine required input arguments:
-% 
-%   E = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo);
-%
-% 2) by explicitly invoking all the input arguments:
-%
-%   E = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo, ...
-%                          q,wa,PTx,ha,hb,R1,tca,htter,hrter,eff1,eff2,debug,fidlog);
-%
-% 3) or by explicitly omitting some of the optional input arguments:
-% 
-%   E = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo, ...
-%                        q,wa,PTx,[],[],[],[],[],[],[],[],debug,fidlog);
-%
-% Examples:
-%   E=P1546FieldStrMixed(2700,50,1600,1.5,10,'Suburban',20,'Land',1);
-%
-%   [E,L]=P1546FieldStrMixed(2700,50,1600,1.5,10,'Suburban',20,'Land',1,50,100, 1,[],[],[],[],[],[],[],[],1,[]);
-% 
-% Numbers refer to Rec. ITU-R P.1546-6
 
 % Rev   Date        Author                          Description
 %-------------------------------------------------------------------------------
+% v16   12JUL21     Ivica Stevanovic, OFCOM         Simplified handling of optional input arguments and 
+%                                                   renaming subfolder "src" into "private" which is automatically in the MATLAB search path
+%                                                   (as suggested by K. Konstantinou, Ofcom UK)   
+%                                                   and minor editorial correction (suggested by A. Taylor, UK)
 % v15   20OCT19     Ivica Stevanovic, OFCOM         Aligned with ITU-R P.1546-6
 %                                                   Corrected a bug in h1Calc (Reported by M. Friedrich, Germany)
 % v14   11APR19     Ivica Stevanovic, OFCOM         Steps 1-16 use d = 1 km for 0.04 < d < 1 km
@@ -180,10 +186,6 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 
 %% Read the input arguments and check them
 
-if nargin > 23    warning(strcat('P1546FieldStrMixed: Too many input arguments; The function requires at most 22',...
-        'input arguments. Additional values ignored. Input values may be wrongly assigned.'));
-end
-
 if nargin <9 
     fclose all;
     error('P1546FieldStrMixed: function requires at least 9 input parameters.');
@@ -224,86 +226,38 @@ end
 
 % Optional arguments
 
-ha=[];
-hb=[];
-R1=[];
-tca=[];
-htter=[];
-hrter=[];
-eff1=[];
-eff2=[];
-q=50;
-wa = [];
-PTx = 1;
-debug = 0;
-fid_log = [];
+% Parse the optional input
+iP = inputParser;
+iP.addParameter('q',50)
+iP.addParameter('wa',[])
+iP.addParameter('PTx',1)
+iP.addParameter('ha',[])
+iP.addParameter('hb',[])
+iP.addParameter('R1',[])
+iP.addParameter('tca',[])
+iP.addParameter('htter',[])
+iP.addParameter('hrter',[])
+iP.addParameter('eff1',[])
+iP.addParameter('eff2',[])
+iP.addParameter('debug',0)
+iP.addParameter('fid_log',[])
+iP.parse(varargin{:});
 
-icount = 10;
+% Unpack from input parser
+ha = iP.Results.ha;
+hb = iP.Results.hb;
+R1 = iP.Results.R1;
+tca = iP.Results.tca;
+htter = iP.Results.htter;
+hrter = iP.Results.hrter;
+eff1 = iP.Results.eff1;
+eff2 = iP.Results.eff2;
+q = iP.Results.q;
+wa = iP.Results.wa;
+PTx = iP.Results.PTx;
+debug = iP.Results.debug;
+fid_log = iP.Results.fid_log;
 
-if nargin >=icount
-    q=varargin{1};
-    if nargin >=icount+1
-        if ~isempty(varargin{2})
-            wa=varargin{2};
-        end
-        if nargin >=icount+2
-            if ~isempty(varargin{3})
-                PTx=varargin{3};
-            end
-            if nargin >=icount + 3
-                if ~isempty(varargin{4})
-                    ha=varargin{4};
-                end
-                if nargin >=icount + 4
-                    if ~isempty(varargin{5})
-                        hb=varargin{5};
-                    end
-                    if nargin >=icount + 5
-                        if ~isempty(varargin{6})
-                            R1=varargin{6};
-                        end
-                        if nargin >=icount + 6
-                            if ~isempty(varargin{7})
-                                tca=varargin{7};
-                            end
-                            if nargin >=icount + 7
-                                if ~isempty(varargin{8})
-                                    htter=varargin{8};
-                                end
-                                if nargin >=icount + 8
-                                    if ~isempty(varargin{9})
-                                        hrter=varargin{9};
-                                    end
-                                    if nargin >=icount + 9
-                                        if ~isempty(varargin{10})
-                                            eff1=varargin{10};
-                                        end
-                                        if nargin >=icount + 10
-                                            if ~isempty(varargin{11})
-                                                eff2=varargin{11};
-                                            end
-                                            if nargin >=icount + 11
-                                                if ~isempty(varargin{12})
-                                                    debug = varargin{12};
-                                                end
-                                                if nargin >=icount + 12
-                                                    if ~isempty(varargin{13})
-                                                        fid_log = varargin{13};
-                                                    end
-                                                end
-                                            end
-                                        end
-                                        
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-end
         
 % handle number fid_log is reserved here for writing the files
 % if fid_log is already open outside of this function, the file needs to be
@@ -525,7 +479,7 @@ if (debug)
     fprintf(fid_log,['Frequency f (MHz);;;' floatformat],f);
     fprintf(fid_log,['Horizontal path length d (km);;;' floatformat], dtot);
     fprintf(fid_log,['Land path (km);;;' floatformat],sum(dl));
-    fprintf(fid_log,['See path (km);%s;;' floatformat],path_sea_str,sum(ds));
+    fprintf(fid_log,['Sea path (km);%s;;' floatformat],path_sea_str,sum(ds));
     fprintf(fid_log,['Percentage time t (%%);;;' floatformat], t);
     fprintf(fid_log,['Percentage location q (%%);;;' floatformat],q);
     fprintf(fid_log,['Tx antenna height h1 (m);§3 (4)-(7);;' floatformat], h1);
