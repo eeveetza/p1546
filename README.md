@@ -10,8 +10,8 @@ The following table describes the structure of the folder `./matlab/` containing
 |----------------------------|---------------------------------------------------------------------|
 |`P1546FieldStrMixed.m`                | MATLAB function implementing Recommendation ITU-R P.1546-5          |
 |`validateP1546.m`          | MATLAB script used to validate the implementation of Recommendation ITU-R P.1546-5 in `P1546FieldStrMixed.m`             |
-|`./test_profiles/`    | Folder containing a proposed set of terrain profiles and inputs for validation of MATLAB implementation (or any other software implementation) of this Recommendation |
-|`./test_results/`	   | Folder containing all the results written during the transmission loss computations for the set of terrain profiles defined in the folder `./validation_profiles/` |
+|`./validation_profiles/`    | Folder containing a proposed set of terrain profiles and inputs for validation of MATLAB implementation (or any other software implementation) of this Recommendation |
+|`./validation_results/`	   | Folder containing all the results written during the transmission loss computations for the set of terrain profiles defined in the folder `./validation_profiles/` |
 |`./src/`   |             Folder containing the functions used by `validateP1546.m` to read the test terrain profiles and compute all the parameters required as arguments of the function `P1546FieldStrMixed`|
 
 ## Function Call

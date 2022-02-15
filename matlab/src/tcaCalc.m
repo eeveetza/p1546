@@ -8,7 +8,7 @@ function tca = tcaCalc(d,h,hR,hT)
 % hT - height of the transmitter antenna above ground (m)
 %
 % This function calculates the terrain clearance angle (tca) in [deg] using
-% the method described in ITU-R P.1546-4
+% the method described in ITU-R P.1546-5
 % tca is the elevation angle of the line from the receiving/mobile antenna
 % which just clears all the terrain obstructions over a distance of up to 16 km
 % but does not go beyond the transmitting/base antenna.

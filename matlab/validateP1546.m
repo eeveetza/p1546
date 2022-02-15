@@ -3,15 +3,20 @@
 % using a set of test terrain profiles provided by the user.
 %
 % The script reads all the test profiles from the folder defined by 
-% the variable <test_profiles>, calculates path profile parameters, 
+% the variable <validation_profiles>, calculates path profile parameters, 
 % computes the field strength for the input parameters defined in those files, 
 % and (in case flag_debug is set to 1) logs all the intermediate results 
-% in *.csv files (placed in the folder defined by the variable: test_results). 
+% in *.csv files (placed in the folder defined by the variable: validation_results). 
 % Additionally, the script plots terrain profiles in case flag_plot is set to 1. 
 %
 % Author: Ivica Stevanovic (IS), Federal Office of Communications, Switzerland
 % Revision History:
 % Date            Revision
+% 01Aug2017       Designation to 'sea and coastal' and 'land' done
+%                 according to the radio-meteorological code only, and not
+%                 anymore according to the coverage code.
+% 21Jul2017       Adjusted for the most recent format of SG3 measurement data files (IS)
+%                 and immediate printing of messages on stdout in octave
 % 13May2016       Introduced pathinfo flag (IS)
 % 29May2015       Modified backward to forward stroke so the code runs on
 %                 Linux as suggested by M. Rohner (IS) 
@@ -24,21 +29,28 @@ clear all;
 close all;
 fclose all; 
 
+
 % add path to the folder where the functions are defined
 addpath('./src')
 
+% immediate printing to command window in octave
+if (isOctave)
+    page_screen_output(0);
+    page_output_immediately(1);
+end
+
 % path to the folder containing test profiles 
-test_profiles = './test_profiles/';
+test_profiles = './validation_profiles/';
  
 % path to the folder where the resulting log files will be saved
-test_results = './test_results/';
+test_results = './validation_results/';
 
 % format of the test profile (measurement) files
 fileformat='Fryderyk_csv';
 
 % Clutter code type 
 
-ClutterCode = 'DNR1812';
+ClutterCode = 'GlobCover';
 
 %     ClutterCode='default'; % default clutter code assumes land, rural area with R1 = R2 = 10;
 %     ClutterCode='TBD'
@@ -87,10 +99,6 @@ for iname = 1 : length(filenames)
     
     sg3db=read_sg3_measurements2([test_profiles filename1],fileformat);
     
-    % make sure that the transmitter is the first point
-    
-    sg3db.first_point_transmitter = 1;
-    
     sg3db.debug = flag_debug;
     
     % pathprofile is available (=1), not available (=0)
@@ -129,7 +137,8 @@ for iname = 1 : length(filenames)
                 dinc=(sg3db.x(i+1)- sg3db.x(i-1))/2;
             end
             
-            if ( sg3db.radio_met_code(i)==1 ||  sg3db.coveragecode(i)==1) %sea
+            %if ( sg3db.radio_met_code(i)==1 ||  sg3db.coveragecode(i)==1) %sea 
+            if ( sg3db.radio_met_code(i)==1 ||  sg3db.radio_met_code(i)==3) %sea and coastal
                 dsea=dsea+dinc;
             else
                 dland=dland+dinc;
@@ -202,14 +211,14 @@ for iname = 1 : length(filenames)
         hold(ax, 'on');
         
     end
-    for userChoiceInt = 1:length(hRx)
-        if(~isempty(userChoiceInt))
-            if (userChoiceInt > length(hRx) || userChoiceInt <1)
+    for measID = 1:length(hRx)
+        if(~isempty(measID))
+            if (measID > length(hRx) || measID <1)
                 error('The chosen dataset does not exist.')
             end
-            fprintf(1,'Computing the fields for Dataset #%d\n', userChoiceInt);
-            sg3db.userChoiceInt = userChoiceInt;
-            hhRx=hRx(userChoiceInt);
+            fprintf(1,'Computing the fields for Dataset #%d\n', measID);
+            sg3db.userChoiceInt = measID;
+            hhRx=hRx(measID);
             % this will be a separate function
             % Transmitter
             if(flag_plot)
@@ -226,25 +235,25 @@ for iname = 1 : length(filenames)
                 end
             end
         end
-        if(~isempty(userChoiceInt))
+        if(~isempty(measID))
             
             % compute the terrain clearance angle
-            tca = tcaCalc(x,h_gamsl,hRx(userChoiceInt),hTx(userChoiceInt));
+            tca = tcaCalc(x,h_gamsl,hRx(measID),hTx(measID));
             sg3db.tca = tca;
             if(flag_plot)
-                plotTca(ax,x,h_gamsl,hRx(userChoiceInt),tca);
+                plotTca(ax,x,h_gamsl,hRx(measID),tca);
                 
             end
             
             % compute the terrain clearance angle at transmitter side
-            teff1 = teff1Calc(x,h_gamsl,hTx(userChoiceInt),hRx(userChoiceInt));
+            teff1 = teff1Calc(x,h_gamsl,hTx(measID),hRx(measID));
             sg3db.eff1 = teff1;
             if(flag_plot)
-                plotTeff1(ax,x,h_gamsl,hTx(userChoiceInt),teff1);
+                plotTeff1(ax,x,h_gamsl,hTx(measID),teff1);
                 
             end
             %if(get(handles.heffCheck,'Value'))
-            heff=heffCalc(x,h_gamsl,hTx(1));
+            heff=heffCalc(x,h_gamsl,hTx(measID));
             
             sg3db.heff=heff;
             % plot the average height above the ground
@@ -282,7 +291,7 @@ for iname = 1 : length(filenames)
             [TxClutterCode TxP1546Clutter R1external] = clutter(i, ClutterCode);
             
             % Once the clutter has been chosen, the second terminal becomes a
-            % transmitter in the following cases according to �5 1.11
+            % transmitter in the following cases according to 5 1.11
             % a) both 1 and 2 are below clutter (h1<R1, h2<R2) and h2>h1
             % b) 2 is above clutter and 1 is below clutter (h1<R1, h2>R2)
             % c) both 1 and 2 are above clutter (h1>R1 h2>R2) and h2eff > h1eff
@@ -322,7 +331,7 @@ for iname = 1 : length(filenames)
         fid_log = -1;
         if (flag_debug)
 
-            filename2 = [test_results filename1(1:end-4)  num2str(userChoiceInt) '_log.csv'];
+            filename2 = [test_results filename1(1:end-4) '_'  num2str(measID) '_log.csv'];
             fid_log = fopen(filename2, 'w');
             if (fid_log == -1)
                 error_str = [filename2 ' cannot be opened.'];
@@ -331,16 +340,23 @@ for iname = 1 : length(filenames)
         end
         
         sg3db.fid_log = fid_log;
-        
+        try
         sg3db = P1546Compute(sg3db);
-        
+        catch message
+             disp('Input parameters out of bounds');
+             
+             rethrow(message);
+             
+             sg3db.Lb = NaN;
+             sg3db.PredictedFieldStrength = NaN;
+         end
         if (flag_debug)
             fclose(fid_log);
   
             % print the deviation of the predicted from the measured value,
             % double check this line
             % Measurement folder | Measurement File | Dataset | Measured Field Strength | Predicted Field Strength | Deviation from Measurement
-            fprintf(fid_all,'%s;%s;%d;%.2f;%.2f;%.2f\n',sg3db.MeasurementFolder,sg3db.MeasurementFileName,userChoiceInt, sg3db.MeasuredFieldStrength(userChoiceInt), sg3db.PredictedFieldStrength, sg3db.PredictedFieldStrength - sg3db.MeasuredFieldStrength(userChoiceInt));
+            fprintf(fid_all,'%s;%s;%d;%.2f;%.2f;%.2f\n',sg3db.MeasurementFolder,sg3db.MeasurementFileName,measID, sg3db.MeasuredFieldStrength(measID), sg3db.PredictedFieldStrength, sg3db.PredictedFieldStrength - sg3db.MeasuredFieldStrength(measID));
         end
     end
 end % for all files in ./tests

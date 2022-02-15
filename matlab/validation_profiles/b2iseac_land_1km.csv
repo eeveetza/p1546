@@ -1,0 +1,51 @@
+b2iseac_land_1km
+Tx LAT:,
+Tx LON:,
+Rx LAT:,
+Rx LON:,
+DATE PROFILE TAKEN:,
+SOURCE MAP- SCALE: 1:,
+SOURCE DTBS-RES.(km):,
+First Point TX or RX:,T
+Tot. Path Length(km):,1
+Tx site name:,PointA
+Rx site name:,PointB
+Tx Country:,
+Tx Station Code:,
+#
+#
+#
+#
+{Begin of Meteorology}
+Tx rain zone:,
+Rx rain zone:,
+Average annual values dN (N-units/km):,45
+Average annual sea-level surface refractivity No (N-units):,326.079979
+Other meteorological data:,
+Start date (yyyy.mm.dd):,
+End date (yyyy.mm.dd):,
+Start time daily recordings (hh:mm):,
+End time daily recordings (hh:mm):,
+Total measurement time d (days):,
+Sampling continuous/intermittent (C/I):,
+Sampling interval (s):,
+{End of meteorology}
+#
+#Profile
+Distance from first point,Gnd hgt a.m.s.l.,Coverage Code,Ground cover height,Radio Met Code
+[km],[m],(1-water/sea 2-open/rural 3-suburban 4-urban/trees/forest 5-dense urban),[m],(1 3 4)
+{Begin of Profile}
+Number of Points:,6
+0.0,754.4,2,10,4
+0.2,754.4,2,10,4
+0.4,729.9,2,10,4
+0.60,685.3,2,10,4
+0.80,634.3,2,10,4
+1.00,610.3,2,10,4
+{End of Profile}
+#
+Frequency,Tx antenna height,Tx antenna effective height,Rx antenna height,Polarisation HVC:1 2 3,Txdbm,MaxLb,Txgn,Rxgn,Rx antenna D/O,ERP_max_horiz,ERP_max_vertical,ERP_max_total,HRP_red,Time percentage,Losses relative to free space,Measured field strength,Basic transmission loss,RX height gain group,Is top height in group
+[MHz],[m],[m],[m],,[dBm],[dB],[dBi],[dBi],,[dBW],[dBW],[dBW],[dB],[%],[dB],[dBuV/m],[dB]
+{Begin of Measurements}
+300,50,,10,1,,,,,,,,30,,10,,77.6459,111.197,,
+{End of Measurements}
