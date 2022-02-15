@@ -1,0 +1,72 @@
+b2iseac.dat
+Tx LAT,53.1833333333,,53N11'0''
+Tx LON,-6.3333333333,,6W20'0''
+Rx LAT,54.1666666667,,54N10'0''
+Rx LON,-3.1833333333,,3W11'0''
+DATE PROFILE TAKEN:
+SOURCE MAP- SCALE:
+SOURCE DTBS-RES.(km):
+First Point Tx or Rx,T
+Tot. Path Length(km):,235.100000
+Tx site name:,KIPPURE             
+Rx site name:,DALTON              
+Tx Country:,
+Tx Station Code:,
+#                                                                                
+#Missing data for received signal => 999
+#Received signal below sensitivity => -900+sensitivity in dBm (-900+95=-805)
+#
+{Begin of Meteorology}
+Tx rain zone:,
+Rx rain zone:,
+Average annual values dN (N-units/km):,45.00000000
+Average annual sea-level surface refractivity No (N-units):,326.071024
+Other meteorological data:,
+Start date (yyyy.mm.dd):,
+End date (yyyy.mm.dd):,
+Start time daily recordings (hh:mm):,
+End time daily recordings (hh:mm):,
+Total measurement time d (days):,
+Sampling continuous/intermittent (C/I):,
+Sampling interval (s):,
+{End of meteorology}
+#
+#Profile
+Distance from first point,Gnd hgt a.m.s.l.,Coverage Code, Ground cover height
+[km],[m],(0-99),[m]
+{Begin of Profile}
+Number of Points:,27
+   .00, 754.4,0,   .0
+   .20, 754.4,0,   .0
+   .40, 729.9,0,   .0
+   .60, 685.3,0,   .0
+   .80, 634.3,0,   .0
+  1.00, 610.3,0,   .0
+  1.20, 601.0,0,   .0
+  1.40, 591.7,0,   .0
+  1.60, 530.4,0,   .0
+  1.80, 455.9,0,   .0
+  2.00, 385.1,0,   .0
+  2.50, 373.4,0,   .0
+  3.00, 358.5,0,   .0
+  3.50, 309.0,0,   .0
+  4.00, 316.6,0,   .0
+  4.50, 335.3,0,   .0
+  5.00, 408.1,0,   .0
+  5.50, 532.7,0,   .0
+  6.00, 556.3,0,   .0
+  6.50, 556.3,0,   .0
+  7.00, 488.2,0,   .0
+  7.50, 367.7,0,   .0
+  8.00, 304.8,0,   .0
+  8.50, 292.6,0,   .0
+  9.00, 238.3,0,   .0
+  9.50, 265.1,0,   .0
+ 10.00, 250.3,0,   .0
+{End of Profile}
+#
+Frequency,Tx antenna height,Tx antenna effective height,Rx antenna height,Polarisation HVC:1 2 3,Txdbm,MaxLb,Txgn,Rxgn,Rx antenna D/O,ERP_max_horiz,ERP_max_vertical,ERP_max_total,HRP_red,Time percentage,Losses relative to free space,Measured field strength,Basic transmission loss
+[MHz],[m],[m],[m],,[dBm],[dB],[dBi],[dBi],,[dBW],[dBW],[dB],[%],[dB],[dBuV/m],[dB]
+{Begin of Measurements}
+900,100,,5.0,,,,,,,,,30.000000,.00000000,20,,57.4014,140.983
+{End of Measurements}

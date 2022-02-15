@@ -1,0 +1,96 @@
+b2iseac.dat
+Tx LAT,53.1833333333,,53N11'0''
+Tx LON,-6.3333333333,,6W20'0''
+Rx LAT,54.1666666667,,54N10'0''
+Rx LON,-3.1833333333,,3W11'0''
+DATE PROFILE TAKEN:
+SOURCE MAP- SCALE:
+SOURCE DTBS-RES.(km):
+First Point Tx or Rx,T
+Tot. Path Length(km):,235.100000
+Tx site name:,KIPPURE             
+Rx site name:,DALTON              
+Tx Country:,
+Tx Station Code:,
+#                                                                                
+#Missing data for received signal => 999
+#Received signal below sensitivity => -900+sensitivity in dBm (-900+95=-805)
+#
+{Begin of Meteorology}
+Tx rain zone:,
+Rx rain zone:,
+Average annual values dN (N-units/km):,45.00000000
+Average annual sea-level surface refractivity No (N-units):,326.071024
+Other meteorological data:,
+Start date (yyyy.mm.dd):,
+End date (yyyy.mm.dd):,
+Start time daily recordings (hh:mm):,
+End time daily recordings (hh:mm):,
+Total measurement time d (days):,
+Sampling continuous/intermittent (C/I):,
+Sampling interval (s):,
+{End of meteorology}
+#
+#Profile
+Distance from first point,Gnd hgt a.m.s.l.,Coverage Code, Ground cover height
+[km],[m],(0-99),[m]
+{Begin of Profile}
+Number of Points:,51
+0, .0,0,   .0
+2, .0,0,   .0
+4, .0,0,   .0
+6, .0,0,   .0
+8, .0,0,   .0
+10, .0,0,   .0
+12, .0,0,   .0
+14, .0,0,   .0
+16, .0,0,   .0
+18, .0,0,   .0
+20, .0,0,   .0
+22, .0,0,   .0
+24, .0,0,   .0
+26, .0,0,   .0
+28, .0,0,   .0
+30, .0,0,   .0
+32, .0,0,   .0
+34, .0,0,   .0
+36, .0,0,   .0
+38, .0,0,   .0
+40, .0,0,   .0
+42, .0,0,   .0
+44, .0,0,   .0
+46, .0,0,   .0
+48, .0,0,   .0
+50, .0,0,   .0
+52, .0,0,   .0
+54, .0,0,   .0
+56, .0,0,   .0
+58, .0,0,   .0
+60, .0,0,   .0
+62, .0,0,   .0
+64, .0,0,   .0
+66, .0,0,   .0
+68, .0,0,   .0
+70, .0,0,   .0
+72, .0,0,   .0
+74, .0,0,   .0
+76, .0,0,   .0
+78, .0,0,   .0
+80, .0,0,   .0
+82, .0,0,   .0
+84, .0,0,   .0
+86, .0,0,   .0
+88, .0,0,   .0
+90, .0,0,   .0
+92, .0,0,   .0
+94, .0,0,   .0
+96, .0,0,   .0
+98, .0,0,   .0
+100, .0,0,   .0
+{End of Profile}
+#
+Frequency,Tx antenna height,Tx antenna effective height,Rx antenna height,Polarisation HVC:1 2 3,Txdbm,MaxLb,Txgn,Rxgn,Rx antenna D/O,ERP_max_horiz,ERP_max_vertical,ERP_max_total,HRP_red,Time percentage,Losses relative to free space,Measured field strength,Basic transmission loss
+[MHz],[m],[m],[m],,[dBm],[dB],[dBi],[dBi],,[dBW],[dBW],[dB],[%],[dB],[dBuV/m],[dB]
+{Begin of Measurements}
+2600,1000,,1.0,,,,,,,,,30.000000,.00000000,50,,12.6016,194.998
+{End of Measurements}
