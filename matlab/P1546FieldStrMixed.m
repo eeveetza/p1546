@@ -112,6 +112,8 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 
 % Rev   Date        Author                          Description
 %-------------------------------------------------------------------------------
+% v14   11APR19     Ivica Stevanovic, OFCOM         Steps 1-16 use d = 1 km for 0.04 < d < 1 km
+%                                                   introduced caveat in smooth_earth_heights when only two points exist in the profile                                                   
 % v13   01AUG17     Ivica Stevanovic, OFCOM         introduced sea type in the log files
 % v12   21DEC16     Ivica Stevanovic, OFCOM         corrected typo in eq. (26) of Step_11
 % v11   19DEC16     Ivica Stevanovic, OFCOM         corrected bug in Dh1 computation in function step82 for sea path;
@@ -184,9 +186,9 @@ end
 
 % Checking passed parameter to the defined limits
 
-if limit(f,30,3000,'f')
-    return
-end
+%if limit(f,30,3000,'f')
+    %return
+%end
 
 if limit(t,1,50,'t')
     return
@@ -536,7 +538,7 @@ end
 % 2 for the case of mixed path
 
 EmaxF = Step_19a(t,sum(dl),sum(ds));
-
+ 
 % In case, the slope path correction is necessary for the calculation of
 % Emax
 
@@ -580,7 +582,12 @@ for ii=1:NN
         figure = figure_rec(idx,:);
     end
     
-    Epath = step6_10(figure,h1,dinf,dsup,d,path,f,EmaxF,t);
+    Epath = 0;
+    if (d >= 1)
+        Epath = step6_10(figure,h1,dinf,dsup,d,path,f,EmaxF,t);
+    else
+        Epath = step6_10(figure,h1,dinf,dsup,1,path,f,EmaxF,t);
+    end
     
     if strcmp(path,'Land')
         El=[El Epath];
@@ -633,7 +640,14 @@ end
 % maximum of E and Ets.
 if(~(isempty(eff1)) && ~(isempty(eff2)))
     disp('13: Calculating correction due to trophospheric scattering')
-    [Ets,theta_s] = Step_13a(d,f,t,eff1,eff2);
+    Ets = 0;
+    theta_s = 0;
+    if (d >= 1)
+        [Ets,theta_s] = Step_13a(d,f,t,eff1,eff2);
+    else
+        [Ets,theta_s] = Step_13a(1,f,t,eff1,eff2);
+    end
+        
     E = max(E, Ets);
     if (debug == 1)
         fprintf(fid_log,['Path scattering theta_s (deg);§13 (35);13;' floatformat], theta_s);
@@ -655,7 +669,13 @@ end
     else % in case path_c is a string
         path=path_c;
     end
-    [Correction, R2p] = Step_14a(h1,d,R2,h2,f,area);
+    Correction = 0;
+    R2p = 0;
+    if (d >= 1)
+        [Correction, R2p] = Step_14a(h1,d,R2,h2,f,area);
+    else
+        [Correction, R2p] = Step_14a(h1,1,R2,h2,f,area);
+    end
     E = E + Correction;
     if (debug == 1)
         fprintf(fid_log,['Rx repr. clutter height R2'' (m);§9 (27);14;' floatformat], R2p);
@@ -678,17 +698,31 @@ end
 if (~isempty(ha) && ~isempty(h2))
     disp('16: Slope-path correction.');
     if (isempty(htter) && isempty(hrter))
-        E = E + Step_16a(ha,h2,d);
+        
+        if (d >= 1)
+            Correction = Step_16a(ha,h2,d); 
+        else
+            Correction = Step_16a(ha,h2,1); 
+        end
+        E = E + Correction;
+        
         if (debug == 1)
             
-            fprintf(fid_log,['Rx slope-path correction (dB);§14 (37);16;' floatformat],Step_16a(ha,h2,d));
+            fprintf(fid_log,['Rx slope-path correction (dB);§14 (37);16;' floatformat],Correction);
         end            
         
     else
-       
-        E = E + Step_16a(ha,h2,d, htter,hrter);
+        
+        if (d >= 1)
+            Correction = Step_16a(ha,h2,d, htter,hrter);
+        else 
+            Correction = Step_16a(ha,h2,1, htter,hrter);
+        end
+            E = E + Correction;
+        
+        
         if (debug == 1)
-            fprintf(fid_log,['Rx slope-path correction (dB);§14 (37);16;' floatformat],Step_16a(ha,h2,d, htter,hrter));
+            fprintf(fid_log,['Rx slope-path correction (dB);§14 (37);16;' floatformat],Correction);
             
             %fprintf(1,'Correction = %.2f\n', Step_16a(ha,h2,d, htter,hrter)) % corrected 5.4.16, IS;
         end   

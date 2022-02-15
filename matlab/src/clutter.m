@@ -4,11 +4,11 @@ function [RxClutterCode RxP1546Clutter R2external] = clutter(i, ClutterCodeType)
 % the corresponding clutter class description, P1546 clutter class description
 % and clutter height R.
 % The implemented ClutterCodeTypes are:
-% 'OFCOM' (as defined in the SG3DB database on SUI data from 2012
+% 'OFCOM' (as defined in the SG3DB database with SUI measurements from 2012 (IsHeightFunction=1)
 % 'TDB'   (as defined in the RCRU database and UK data) http://www.rcru.rl.ac.uk/njt/linkdatabase/linkdatabase.php
 % 'NLCD'  (as defined in the National Land Cover Dataset) http://www.mrlc.gov/nlcd06_leg.php
 % 'LULC'  (as defined in Land Use and Land Clutter database) http://transition.fcc.gov/Bureaus/Engineering_Technology/Documents/bulletins/oet72/oet72.pdf
-% 'GlobCover' (as defined in ESA's GlobCover land cover maps) http://due.esrin.esa.int/globcover/
+% 'P1546' (as defined in the SG3DB in SUI measurement files)
 % 'DNR1812' (as defined in the implementation tests for DNR P.1812)
 % 'default' (land paths, rural area, R = 10 m)
 %
@@ -161,13 +161,13 @@ elseif strcmp(ClutterCodeType,'LULC')
     else RxClutterCode='Unknown data'; RxP1546Clutter=''; R2external=[];
     end
     
-elseif strcmp(ClutterCodeType,'GlobCover')
+elseif strcmp(ClutterCodeType,'P1546')
     if i==1     	RxClutterCode='Water/Sea';                                  RxP1546Clutter='Sea';   R2external=10;
     elseif i==2 	RxClutterCode='Open/Rural';                                 RxP1546Clutter='Rural'; R2external=10;
     elseif i==3     RxClutterCode='Suburban';                                   RxP1546Clutter='Suburban'; R2external=10;
     elseif i==4     RxClutterCode='Urban/trees/forest';                         RxP1546Clutter='Urban'; R2external=15;
     elseif i==5     RxClutterCode='Dense Urban';                                RxP1546Clutter='Dense Urban'; R2external=20;
-    else RxClutterCode='Unknown data'; RxP1546Clutter=''; R2external=[];
+    else RxClutterCode='Unknown'; RxP1546Clutter='Suburban'; R2external = 0;
     end
     
 elseif strcmp(ClutterCodeType,'DNR1812')
@@ -187,7 +187,7 @@ elseif strcmpi(ClutterCodeType,'default')
 else
     RxClutterCode='';
     RxP1546Clutter='';
-    R2external=[];
+    R2external=0;
     
 end
 
