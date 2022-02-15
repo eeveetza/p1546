@@ -3,7 +3,7 @@ Tx Power (kW);;;
 Frequency f (MHz);;;
 Horizontal path length d (km);;;
 Land path (km);;;
-See path (km);;;
+See path (km);Cold|Warm;;
 Percentage time t (%);;;
 Percentage location q (%);;;
 Tx antenna height h1 (m);§3 (4)-(7);;

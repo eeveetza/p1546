@@ -1,7 +1,7 @@
-function E = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,varargin)
+function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,varargin)
 % P1546FieldStrMixed: ITU 1546-5 (2013) Field strength calculator
 %
-% E = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,varargin)
+% [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,varargin)
 %
 % where:    Units,  Definition                             Limits
 % f:        MHz     Required frequency                     30 MHz - 3000 MHz
@@ -58,7 +58,13 @@ function E = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,varargin
 % fidlog:           if debug == 1, a file identifier of the log file can be
 %                   provided, if not, the default file with a file 
 %                   containin a timestamp will be created
-%                   
+%
+% Output variables:
+%
+% E:        dBuV/m  Electric field strength
+%
+% L:        dB      Path loss
+%
 % This function implements ITU-R P.1546-5 recommendation,
 % describing a method for point-to-area radio propagation predictions for
 % terrestrial services in the frequency range 30 MHz to 3000 MHz. It is
@@ -100,12 +106,17 @@ function E = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,varargin
 % Examples:
 %   E=P1546FieldStrMixed(2700,50,1600,1.5,10,'Suburban',20,'Land',1);
 %
-%   E=P1546FieldStrMixed(2700,50,1600,1.5,10,'Suburban',20,'Land',1,50,1,[],[],[],[],[],[],[],[],1,4);
+%   [E,L]=P1546FieldStrMixed(2700,50,1600,1.5,10,'Suburban',20,'Land',1,50,1,[],[],[],[],[],[],[],[],1,[]);
 % 
 % Numbers refer to Rec. ITU-R P.1546-5
 
 % Rev   Date        Author                          Description
 %-------------------------------------------------------------------------------
+% v13   01AUG17     Ivica Stevanovic, OFCOM         introduced sea type in the log files
+% v12   21DEC16     Ivica Stevanovic, OFCOM         corrected typo in eq. (26) of Step_11
+% v11   19DEC16     Ivica Stevanovic, OFCOM         corrected bug in Dh1 computation in function step82 for sea path;
+% v10   25AUG16     Ivica Stevanovic, OFCOM         corrected compatibility issue with Matlab 2016 
+%                                                   occuring in Step_17a when PTx = [];
 % v9    13MAY16     Ivica Stevanovic, OFCOM         correction in h1Calc,
 %                                                   pathinfo introduced
 % v8    05APR16     Ivica Stevanovic, OFCOM         printing format for external log
@@ -222,27 +233,49 @@ icount = 10;
 if nargin >=icount
     q=varargin{1};
     if nargin >=icount+1
-        PTx=varargin{2};
+        if ~isempty(varargin{2})
+            PTx=varargin{2};
+        end
         if nargin >=icount + 2
-            ha=varargin{3};
+            if ~isempty(varargin{3})
+                ha=varargin{3};
+            end
             if nargin >=icount + 3 
-                hb=varargin{4};
+                if ~isempty(varargin{4})
+                    hb=varargin{4};
+                end
                 if nargin >=icount + 4
-                    R1=varargin{5};
+                    if ~isempty(varargin{5})
+                        R1=varargin{5};
+                    end
                     if nargin >=icount + 5
-                        tca=varargin{6};
+                        if ~isempty(varargin{6})
+                            tca=varargin{6};
+                        end
                         if nargin >=icount + 6
-                            htter=varargin{7};
+                            if ~isempty(varargin{7})
+                                htter=varargin{7};
+                            end
                             if nargin >=icount + 7
-                                hrter=varargin{8};
+                                if ~isempty(varargin{8})
+                                    hrter=varargin{8};
+                                end
                                 if nargin >=icount + 8
-                                    eff1=varargin{9};
+                                    if ~isempty(varargin{9})
+                                        eff1=varargin{9};
+                                    end
                                     if nargin >=icount + 9
-                                        eff2=varargin{10};
+                                        if ~isempty(varargin{10})
+                                            eff2=varargin{10};
+                                        end
                                         if nargin >=icount + 10
-                                            debug = varargin{11};
+                                            if ~isempty(varargin{11})
+                                                debug = varargin{11};
+                                            end
                                             if nargin >=icount + 11
-                                                fid_log = varargin{12};
+                                                if ~isempty(varargin{12})
+                                                    fid_log = varargin{12};
+                                                end
                                             end
                                         end
                                     end
@@ -432,6 +465,8 @@ dl=[];
 Es=[];
 ds=[];
 
+path_sea_str = '';
+
 for ii=1:NN %
     if iscell(path_c) % in case path_c is in cell for
         path=path_c{ii};
@@ -442,27 +477,30 @@ for ii=1:NN %
         dl=[dl d_v(ii)];
     elseif strcmp(path,'Sea')
         ds=[ds d_v(ii)];
+        path_sea_str = 'Cold';
     elseif strcmp(path,'Cold')
         ds=[ds d_v(ii)];
+        path_sea_str = 'Cold';
     elseif strcmp(path,'Warm')
         ds=[ds d_v(ii)];
+        path_sea_str = 'Warm';
     else
         error('Wrong value in the variable ''path''. ')
     end
 end
+
 
 % Print the data in the log file if debug option is set
 
 floatformat= '%g;\n';
 
 if (debug)
-    
     fprintf(fid_log,'# Input Parameters;Ref;;Value;\n');
     fprintf(fid_log,['Tx Power (kW);;;' floatformat],PTx);
     fprintf(fid_log,['Frequency f (MHz);;;' floatformat],f);
     fprintf(fid_log,['Horizontal path length d (km);;;' floatformat], dtot);
     fprintf(fid_log,['Land path (km);;;' floatformat],sum(dl));
-    fprintf(fid_log,['See path (km);;;' floatformat],sum(ds));
+    fprintf(fid_log,['See path (km);%s;;' floatformat],path_sea_str,sum(ds));
     fprintf(fid_log,['Percentage time t (%%);;;' floatformat], t);
     fprintf(fid_log,['Percentage location q (%%);;;' floatformat],q);
     fprintf(fid_log,['Tx antenna height h1 (m);§3 (4)-(7);;' floatformat], h1);
@@ -927,7 +965,7 @@ return
 
 %%
 function Emax = Step_19a(t, dland, dsea)
-% E = Step_19a(t, dtotal, dsea)
+% E = Step_19a(t, dland, dsea)
 %                               
 %
 % Step 19: If necessary, limit the resulting field strength to the maximum
@@ -1062,7 +1100,7 @@ function D = D06(f,h1,h2)
 % v1    13AUG09     Jef Statham, Industry Canada    Original version
 
 if (h1 < 0)
-    h1 = 0
+    h1 = 0;
 end
 Df = 0.0000389*f*h1*h2;             % equ'n (41a)
 Dh = 4.1*(sqrt(h1)+sqrt(h2));       % equ'n (41b)
@@ -1157,7 +1195,7 @@ for j=(finf == fsup)+1:2
         Ef(j) = step81(tabulatedValues,h1,dinf,dsup,d,Emaxvalue);
         Ef(j) = min(Ef(j), Emaxvalue);
     else
-        Ef(j) = step82(tabulatedValues,h1,dinf,dsup,d,generalPath,argj(j),f,Emaxvalue,t);
+        Ef(j) = step82(tabulatedValues,h1,dinf,dsup,d,generalPath,argj(j),Emaxvalue,t);
     end
 end%%end for (frequency)
 if finf ~= fsup
@@ -1203,7 +1241,7 @@ function E = step81(tabulatedValues,h1,dinf,dsup,d,Emax)
     
 % double check h1
 if ~(h1 >= 10)
-    error('h1 is less then 10 for step81')
+    error('h1 is less than 10 m for step81')
 end
 % obatin hsup and hinf
 height = [10, 20, 37.5, 75, 150, 300, 600, 1200];
@@ -1306,13 +1344,13 @@ E = NaN;
 return
     
 
-function E = step82(tabulatedValues,h1,dinf,dsup,d,path,fnom,f,Emaxvalue,t)
+function E = step82(tabulatedValues,h1,dinf,dsup,d,path,fnom,Emaxvalue,t)
 % Step 8.2: For a transmitting/base antenna height h1 less than 10 m
 % determine the field strength for the required height and distance
 % using the method given in Annex 5, § 4.2. If h1 is less than zero,
 % the method given in Annex 5, § 4.3 should also be used.
 
-% function E = step82(tabulatedValues,h1,dinf,dsup,d,path,fnom,f,Emaxvalue,t)
+% function E = step82(tabulatedValues,h1,dinf,dsup,d,path,fnom,Emaxvalue,t)
 %
 % tabulatedValues a matrix of value from a figure 1-24 of excel sheet of
 %   values for recommendation. Expected range from table 'B6:K84' may still
@@ -1323,7 +1361,6 @@ function E = step82(tabulatedValues,h1,dinf,dsup,d,path,fnom,f,Emaxvalue,t)
 % d is the distance
 % path either 'Land' or 'Sea'
 % fnom the nominal frequency (100 600 or 1200 MHz)
-% f frequency
 % Emaxvalue the the max field strength
 % t percent time
 %
@@ -1332,6 +1369,7 @@ function E = step82(tabulatedValues,h1,dinf,dsup,d,path,fnom,f,Emaxvalue,t)
 
 % Rev   Date        Author                          Description
 %-------------------------------------------------------------------------------
+% v3    19DEC16     Ivica Stevanovic, OFCOM         corrected Dh1 computation for sea paths
 % v2    08JUN13     Ivica Stevanovic, OFCOM         Edited comments and checked
 %                                                   and corrected the code
 %                                                   for h1<0 and land paths
@@ -1360,7 +1398,10 @@ if strcmp(path, 'Land')
         
         E = Ezero + 0.1*h1*(E10 - Ezero);          % equ'n (9)
         return
-    elseif h1 < 0  %% STI: the following seems to be wrong
+    elseif h1 < 0  
+        % STI: the following piece of code from Jeff seems to be wrong and
+        % it is commented out and replaced by the code below the commented
+        % section
         % v = V(fnom,h1);
         % J = 6.9+20*log10(sqrt((v-0.1)^2+1)+v-0.1);  % equ'n (12a)
         % E = step814_815(tabulatedValues,0,dinf,dsup,d) + (6.03-J); <-- this was wrong
@@ -1379,8 +1420,8 @@ elseif strcmp(path, 'Sea')
     if h1 < 1
         error('h1 cannot be less than 1 m for calculating sea path');
     end
-    Dh1 = D06(f,h1,10);             % equ'n (10a)
-    D20 = D06(f,20,10);             % equ'n (10b)
+    Dh1 = D06(fnom,h1,10);             % equ'n (10a)
+    D20 = D06(fnom,20,10);             % equ'n (10b)
     if d <= Dh1
         E = Emaxvalue;                   % equ'n (11a)
         return
@@ -1389,7 +1430,8 @@ elseif strcmp(path, 'Sea')
         E10D20 = step814_815(tabulatedValues,10,dinf1,dsup1,D20);
         E20D20 = step814_815(tabulatedValues,20,dinf1,dsup1,D20);
         ED20 = E10D20+(E20D20 - E10D20)*log10(h1/10)/log10(20/10);
-        EDh1 = Emax(Dh1,t,'Sea');
+        %EDh1 = Emax(t, dland, dsea);
+        EDh1 = Step_19a(t, 0, Dh1);
         E=EDh1+(ED20 - EDh1)*log10(d/Dh1)/log10(D20/Dh1);
         return
     elseif d >= D20
@@ -1458,6 +1500,7 @@ function E = Step_11a_rrc06(Eland, Esea, dland, dsea)
 %
 % Rev   Date        Author                          Description
 %--------------------------------------------------------------------------
+% v2    21DEC16     Ivica Stevanovic, OFCOM         corrected typo in eq. (26)
 % v1    13AUG13     Ivica Stevanovic, OFCOM         Initial version
 
 % Verify that Eland and dland, Esea and dsea have the same length
@@ -1500,7 +1543,7 @@ else
     
     Fsea = dsT/dtotal;
     
-    Delta = sum(Esea.*dsea)/dsT - sum(Eland.*dland)/dsT;
+    Delta = sum(Esea.*dsea)/dsT - sum(Eland.*dland)/dlT; % eqn (26)
     
     V = max(1.0, 1.0+Delta/40);
     
@@ -1903,7 +1946,7 @@ if (nargin == 3)
     d_slope=dslope(ha,h2,d);
 else
        
-    d_slope=dslope(ha,h2,d,varargin{1,:});
+    d_slope=dslope(ha,h2,d,varargin{:});
 
 end
 
@@ -1953,7 +1996,9 @@ function E = Step_17a(ha, h2, d, Esup, varargin)
 if (isempty(ha) || isempty(h2) || isempty(d) || isempty(Esup))
     error('Input arguments ha, h2, d, or Esup not defined.')
 end
-d_slope = dslope(ha,h2,d,varargin{1,:});
+
+d_slope = dslope(ha,h2,d,varargin{:});
+
 dinf = 0.04;
 dsup = 1;
 
@@ -1966,8 +2011,8 @@ dsup = 1;
 if (d <= dinf)
    E=106.9-20*log10(d_slope); 
 else
-   dinf_slope = dslope(ha,h2,dinf,varargin{1,:});
-   dsup_slope = dslope(ha,h2,dsup,varargin{1,:});
+   dinf_slope = dslope(ha,h2,dinf,varargin{:});
+   dsup_slope = dslope(ha,h2,dsup,varargin{:});
    Einf = 106.9-20*log10(dinf_slope);
    E = Einf + (Esup - Einf)*log10(d_slope/dinf_slope)/log10(dsup_slope/dinf_slope);
 end
