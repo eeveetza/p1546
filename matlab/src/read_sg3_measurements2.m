@@ -59,7 +59,7 @@ switch fileformat
             dummy=regexp(readLine,',','split');
             
             
-            if strcmp(dummy{1},'First Point Tx or Rx')
+            if strcmp(dummy{1},'First Point TX or RX:')
                 if strcmp(dummy{2},'T')
                     sg3db.first_point_transmitter=1;
                 else

@@ -1,13 +1,13 @@
-P1546 Version 5.14 (01.05.19)
+P1546 Version 6.1 (08.04.20)
 
-MATLAB implementation of Recommendation ITU-R P.1546-5
+MATLAB implementation of Recommendation ITU-R P.1546-6
 
 GENERAL NOTES
 --------------
 
 Files and subfolders in the distribution .zip package.
 
- P1546FieldStrMixed.m	     - MATLAB function implementing Recommendation ITU-R P.1546-5
+ P1546FieldStrMixed.m	     - MATLAB function implementing Recommendation ITU-R P.1546-6
 
  validateP1546.m             - MATLAB script used to validate the implementation of
                                Recommendation ITU-R P.1546-5 as defined in the file
@@ -16,10 +16,10 @@ Files and subfolders in the distribution .zip package.
 
  ./validation_profiles/	     - Folder containing a proposed set of terrain profiles for
                                validation of MATLAB implementation (or any other software
-                               implementation) of Recommendation ITU-R P.1546-5
+                               implementation) of Recommendation ITU-R P.1546-6
 
  result_validation_log.csv   - Template for reporting final and intermediate results of field
-                               strength computation according to Recommendation ITU-R P.1546-5
+                               strength computation according to Recommendation ITU-R P.1546-6
 
  ./validation_results/       - Folder containing all the results written during the field strength
                                computations for the set of terrain profiles defined
@@ -32,6 +32,10 @@ Files and subfolders in the distribution .zip package.
 
 UPDATES AND FIXES
 -----------------
+Version 6.1 (08.04.20)
+    - Introduced changes according to ITU-R P.1546-6: 
+           Upper frequency limit, representative clutter heights, location variability in Step_18a
+    - Additional validation examples to test implementation of P1546-6 Annex 5 Paragraph 1.1 (terminal designation)
 Version 3 (01.05.19)
     - Steps 1-16 use d = 1 km in interpolation for distances 0.04 < d < 1 km as per ITU-R P.1546-5
     - Introduced a caveat in smooth_earth_heights when only two points exist in the profile
@@ -49,3 +53,24 @@ Version 2 (09.08.17)
 
 Version 1 (26.05.16)
      - Initial implementation
+
+
+License and copyright notice
+
+Swiss Federal Office of Communications OFCOM (hereinafter the "Software Copyright Holder") makes the accompanying software 
+(hereinafter the “Software”) available free from copyright restriction. 
+
+The Software Copyright Holder represents and warrants that to the best of its knowledge, 
+it has the necessary copyright rights to waive all of the copyright rights as permissible under national law in the Software 
+such that the Software can be used by implementers without further licensing concerns. 
+
+No patent licence is granted, nor is a patent licensing commitment made, by implication, estoppel or otherwise. 
+
+Disclaimer: Other than as expressly provided herein, 
+
+(1) the Software is provided “AS IS” WITH NO WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO, 
+THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGMENT OF INTELLECTUAL PROPERTY RIGHTS and 
+
+(2) neither the Software Copyright Holder (or its affiliates) nor the ITU shall be held liable in any event for any damages whatsoever 
+(including, without limitation, damages for loss of profits, business interruption, loss of information, or any other pecuniary loss) 
+arising out of or related to the use of or inability to use the Software.

@@ -1,10 +1,10 @@
 function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,varargin)
-% P1546FieldStrMixed: ITU 1546-5 (2013) Field strength calculator
+% P1546FieldStrMixed: ITU 1546-6 (2019) Field strength calculator
 %
 % [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,varargin)
 %
 % where:    Units,  Definition                             Limits
-% f:        MHz     Required frequency                     30 MHz - 3000 MHz
+% f:        MHz     Required frequency                     30 MHz - 4000 MHz
 % t:        %       Required percentage time               1% - 50 %
 % heff:     m       Effective height of the
 %                   transmitting/base antenna, height over
@@ -16,8 +16,8 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 % R2:       m       Representative clutter height around receiver 
 %                   Typical values: 
 %                   R2=10 for area='Rural' or 'Suburban' or 'Sea'
-%                   R2=20 for area='Urban'
-%                   R2=30 for area='Dense Urban'                   
+%                   R2=15 for area='Urban'
+%                   R2=20 for area='Dense Urban'                   
 % area:     string  Area around the receiver               'Rural', 'Urban',
 %                                                          'Dense Urban'
 %                                                          'Sea'
@@ -30,6 +30,9 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 % pathinfo: 0/1     0 - no terrain profile information available, 
 %                   1 - terrain information available
 % q:        %       Location variability (default 50%)      1% - 99%
+% wa:       m       the width of the square area over which the variability applies (m)
+%                   needs to be defined only if pathinfo is 1 and q <> 50
+%                   typically in the range between 50 m and 1000 m
 % PTx:      kW      Transmitter (e.r.p) power in kW (default 1 kW)
 % ha:       m       Transmitter antenna height above        > 1 m
 %                   ground. Defined in Annex 5 sec 3.1.1.
@@ -65,9 +68,9 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 %
 % L:        dB      Path loss
 %
-% This function implements ITU-R P.1546-5 recommendation,
+% This function implements ITU-R P.1546-6 recommendation,
 % describing a method for point-to-area radio propagation predictions for
-% terrestrial services in the frequency range 30 MHz to 3000 MHz. It is
+% terrestrial services in the frequency range 30 MHz to 4000 MHz. It is
 % intended for use on tropospheric radio circuits over land paths, sea paths,
 % and/or mixed land-sea paths up to 1000 km length for effective
 % transmitting antenna heights less than 3000 m. The method is based on
@@ -96,22 +99,24 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 % 2) by explicitly invoking all the input arguments:
 %
 %   E = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo, ...
-%                          q,PTx,ha,hb,R1,tca,htter,hrter,eff1,eff2,debug,fidlog);
+%                          q,wa,PTx,ha,hb,R1,tca,htter,hrter,eff1,eff2,debug,fidlog);
 %
 % 3) or by explicitly omitting some of the optional input arguments:
 % 
 %   E = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo, ...
-%                        q,PTx,[],[],[],[],[],[],[],[],debug,fidlog);
+%                        q,wa,PTx,[],[],[],[],[],[],[],[],debug,fidlog);
 %
 % Examples:
 %   E=P1546FieldStrMixed(2700,50,1600,1.5,10,'Suburban',20,'Land',1);
 %
-%   [E,L]=P1546FieldStrMixed(2700,50,1600,1.5,10,'Suburban',20,'Land',1,50,1,[],[],[],[],[],[],[],[],1,[]);
+%   [E,L]=P1546FieldStrMixed(2700,50,1600,1.5,10,'Suburban',20,'Land',1,50,100, 1,[],[],[],[],[],[],[],[],1,[]);
 % 
-% Numbers refer to Rec. ITU-R P.1546-5
+% Numbers refer to Rec. ITU-R P.1546-6
 
 % Rev   Date        Author                          Description
 %-------------------------------------------------------------------------------
+% v15   20OCT19     Ivica Stevanovic, OFCOM         Aligned with ITU-R P.1546-6
+%                                                   Corrected a bug in h1Calc (Reported by M. Friedrich, Germany)
 % v14   11APR19     Ivica Stevanovic, OFCOM         Steps 1-16 use d = 1 km for 0.04 < d < 1 km
 %                                                   introduced caveat in smooth_earth_heights when only two points exist in the profile                                                   
 % v13   01AUG17     Ivica Stevanovic, OFCOM         introduced sea type in the log files
@@ -141,7 +146,7 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 % *Based on and extended from Jef Statham's ITU-R p.1546 calculator (2009)
 %  http://www.mathworks.ch/matlabcentral/fileexchange/25099-itu-r-p-1546-calculator
 %  Copyright (c) 2009, Jef Statham
-%  Copyright (c) 2013-16, Ivica Stevanovic
+%  Copyright (c) 2013-19, Ivica Stevanovic
 %  All rights reserved.
 % 
 % Redistribution and use in source and binary forms, with or without
@@ -175,11 +180,12 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 
 %% Read the input arguments and check them
 
-if nargin > 21    warning(strcat('P1546FieldStrMixed: Too many input arguments; The function requires at most 20',...
+if nargin > 23    warning(strcat('P1546FieldStrMixed: Too many input arguments; The function requires at most 22',...
         'input arguments. Additional values ignored. Input values may be wrongly assigned.'));
 end
 
 if nargin <9 
+    fclose all;
     error('P1546FieldStrMixed: function requires at least 9 input parameters.');
 end
 %
@@ -211,6 +217,7 @@ NN=length(d_v);
 if (iscell(path_c))
     % the number of elements in d and path need to be the same
     if(length(path_c) ~= NN)
+        fclose all;
         error('The number of elements in the array ''d'' and cell ''path'' must be the same.')
     end
 end
@@ -226,6 +233,7 @@ hrter=[];
 eff1=[];
 eff2=[];
 q=50;
+wa = [];
 PTx = 1;
 debug = 0;
 fid_log = [];
@@ -236,52 +244,57 @@ if nargin >=icount
     q=varargin{1};
     if nargin >=icount+1
         if ~isempty(varargin{2})
-            PTx=varargin{2};
+            wa=varargin{2};
         end
-        if nargin >=icount + 2
+        if nargin >=icount+2
             if ~isempty(varargin{3})
-                ha=varargin{3};
+                PTx=varargin{3};
             end
-            if nargin >=icount + 3 
+            if nargin >=icount + 3
                 if ~isempty(varargin{4})
-                    hb=varargin{4};
+                    ha=varargin{4};
                 end
                 if nargin >=icount + 4
                     if ~isempty(varargin{5})
-                        R1=varargin{5};
+                        hb=varargin{5};
                     end
                     if nargin >=icount + 5
                         if ~isempty(varargin{6})
-                            tca=varargin{6};
+                            R1=varargin{6};
                         end
                         if nargin >=icount + 6
                             if ~isempty(varargin{7})
-                                htter=varargin{7};
+                                tca=varargin{7};
                             end
                             if nargin >=icount + 7
                                 if ~isempty(varargin{8})
-                                    hrter=varargin{8};
+                                    htter=varargin{8};
                                 end
                                 if nargin >=icount + 8
                                     if ~isempty(varargin{9})
-                                        eff1=varargin{9};
+                                        hrter=varargin{9};
                                     end
                                     if nargin >=icount + 9
                                         if ~isempty(varargin{10})
-                                            eff2=varargin{10};
+                                            eff1=varargin{10};
                                         end
                                         if nargin >=icount + 10
                                             if ~isempty(varargin{11})
-                                                debug = varargin{11};
+                                                eff2=varargin{11};
                                             end
                                             if nargin >=icount + 11
                                                 if ~isempty(varargin{12})
-                                                    fid_log = varargin{12};
+                                                    debug = varargin{12};
+                                                end
+                                                if nargin >=icount + 12
+                                                    if ~isempty(varargin{13})
+                                                        fid_log = varargin{13};
+                                                    end
                                                 end
                                             end
                                         end
+                                        
                                     end
-                                    
                                 end
                             end
                         end
@@ -313,7 +326,7 @@ end
 
 
 
-%              time, path,freq, figure (as defined in ITU-R P.1546-5)
+%              time, path,freq, figure (as defined in ITU-R P.1546-6)
 figure_rec = [  50,   1,  100   ,1;
     10,   1,  100   ,2;
     1,    1,  100   ,3;
@@ -374,12 +387,21 @@ if h1 > 3000
     warning('h1 > 3000 m. Setting h1 = 3000 m');
 end
 if isnan(h1)
+    fclose all;
     error('h1 is nan');
+    
 end
 if isempty(h1)
+    fclose all;
     error('h1 is empty');
 end
 
+if (pathinfo == 1 && q ~= 50)
+    if (isnan(wa) || isempty(wa) || wa <= 0)
+        fclose all;
+        error(' ''wa'' needs to be defined when path is known (pathinfo = 1)');
+    end
+end
 
 Epath=[];
 
@@ -487,6 +509,7 @@ for ii=1:NN %
         ds=[ds d_v(ii)];
         path_sea_str = 'Warm';
     else
+        fclose all;
         error('Wrong value in the variable ''path''. ')
     end
 end
@@ -521,6 +544,16 @@ if (debug)
     %fprintf(fid_log,'Tx clutter type;;%s;\n',area);
     fprintf(fid_log,['Rx clutter height R2 (m);;;' floatformat], R2);
     fprintf(fid_log,'Rx clutter type;;;%s;\n', area);
+    if isempty(wa)
+        fprintf(fid_log,'Square area width wa for variability (m);§12 (34);;;\n');
+    else
+        fprintf(fid_log,['Square area width wa for variability (m);§12 (34);;' '%d;\n'],wa);
+    end
+    if isempty(pathinfo)
+        fprintf(fid_log,'Terrain profile information available; ;;;\n');
+    else
+        fprintf(fid_log,['Terrain profile information available; ;;' floatformat],pathinfo);
+    end
     if isempty(eff1)
         fprintf(fid_log,'Tx effective TCA  theta_eff1 (deg);§4.3a);;;\n');
     else
@@ -602,6 +635,7 @@ for ii=1:NN
         Es=[Es Epath];
         
     else
+        fclose all;
         error('Wrong value in the variable ''path''. ')
     end
     
@@ -656,7 +690,7 @@ if(~(isempty(eff1)) && ~(isempty(eff2)))
 end
 
 % Step 14: Correct the field strength for receiving/mobile antenna height
-% h2 using themethod given in Annex 5, Sec. 9
+% h2 using the method given in Annex 5, Sec. 9
 % CHECK: if R2 corresponds to the clutter or something else?
 if ((isempty(R2)) || isempty(h2) || isempty(area))
     warning('R2, h2, and area are not defined. The following default values used:')
@@ -751,22 +785,17 @@ if (debug == 1)
     
 end
 
-% Step 18: Correct the field strength for the required percentage of
+% Step 18: Correct the field strength over the land area for the required percentage of
 % locations using the method given in Annex 5, Sec. 12.
 Edebug = [];
 if (~isempty(q))
     if (q~=50)
-        disp('18: Correct for percentage locations different from 50 %.')
-        disp('    environment set to 1. To change, please modify the Step_18a function call')
-        % env - environment = 1 - for receivers with antennas below clutter height
-        %                         in urban/suburban areas for mobile systems with
-        %                         omnidirectional antennas at car-roof height
-        %                   = 2 - for receivers with rooftop antennas near the
-        %                         clutter height
-        %                   = 3 - for receivers in rural areas
-        env = 1;
-        E = Step_18a(E,q,f,env);
-        Edebug = E;
+        if (~strcmp(area,'Sea'))
+            disp('18: Correct for percentage locations over the land area different from 50 %.')
+            
+            E = Step_18a(E,q,f,pathinfo, wa, area);
+            Edebug = E;
+        end
     end
 end
 
@@ -833,6 +862,7 @@ function bool = limit(var, low, hi,name)
 % v1    13AUG09     Jef Statham, Industry Canada    Original version
 
 if ((var < low) || (var > hi))
+    fclose all;
     error(strcat(name,' = ',num2str(var),' is outside the limits.'));
     bool = true;
     return
@@ -858,10 +888,11 @@ function h1 = h1Calc(d,heff,ha,hb,path,flag)
 % Sec: 3 Determination of transmitting/base antenna height, h1
 % 
 % This function will return a NaN value if missing inputs according to ITU-R
-% p.1546-5
+% p.1546-6
 
 % Rev   Date        Author                          Description
 %-------------------------------------------------------------------------------
+% v4    06MAY20     Ivica Stevanovic, OFCOM         Corrected a bug in h1Calc for d<15m (Reported by M. Friedrich, Germany)
 % v3    13MAY16     Ivica Stevanovic, OFCOM         Modified to distinguish
 %                                                   between terrain information (not)available
 % v2    08AUG13     Ivica Stevanovic, OFCOM         Edited comments and corrected
@@ -893,7 +924,8 @@ if strcmp(lower(path),'land')
         else % terrain info available
             
             if ~isempty(hb)
-                h1 = heff;                        %equ'n (6) if d < 15 m heff = hb
+                %h1 = heff;                     %equ'n (6) if d < 15 km heff = hb
+                h1 = hb;                        %equ'n (6) if d < 15 km h1 = hb
                 return
             else
                 warning('d < 15, terrain info available, No value for hb. Setting h1 = heff.')
@@ -1017,6 +1049,7 @@ function Emax = Step_19a(t, dland, dsea)
 % v1    12AUG13     Ivica Stevanovic, OFCOM         Initial version
 
 if (t < 1 || t > 50)
+    fclose all;
     error('The percentage time out of band [1%, 50%].')
 end
 
@@ -1275,6 +1308,7 @@ function E = step81(tabulatedValues,h1,dinf,dsup,d,Emax)
     
 % double check h1
 if ~(h1 >= 10)
+    fclose all;
     error('h1 is less than 10 m for step81')
 end
 % obatin hsup and hinf
@@ -1410,6 +1444,7 @@ function E = step82(tabulatedValues,h1,dinf,dsup,d,path,fnom,Emaxvalue,t)
 % v1    13AUG09     Jef Satham, Industry Canada     Initial version
 
 if (h1 >= 10)
+    fclose all;
     error('incorrect h1 value for step82: Greater than 10 m');
 end
 %look up figure values for E10 and E20
@@ -1452,6 +1487,7 @@ if strcmp(path, 'Land')
     end
 elseif strcmp(path, 'Sea')
     if h1 < 1
+        fclose all;
         error('h1 cannot be less than 1 m for calculating sea path');
     end
     Dh1 = D06(fnom,h1,10);             % equ'n (10a)
@@ -1486,7 +1522,7 @@ elseif strcmp(path, 'Sea')
     end %end if d <= Dh1
 end %end if path land
 
-
+fclose all;
 error('no path selected in step82');
 return%% end function
 %%
@@ -1511,6 +1547,7 @@ elseif Kv == 2000
     deg = 6*atand(-h1/9000);    %equ'n (12c and 12b)
 return
 end
+fclose all;
 error('Invalid frequency input');
 return
 
@@ -1540,10 +1577,12 @@ function E = Step_11a_rrc06(Eland, Esea, dland, dsea)
 % Verify that Eland and dland, Esea and dsea have the same length
 
 if length(Eland) ~= length(dland)
+    fclose all;
     error('Vectors Eland and dland must be of the same length.');
 end
 
 if length(Esea) ~= length(dsea)
+    fclose all;
     error('Vectors Esea and dsea must be of the same length.');
 end
 
@@ -1595,13 +1634,13 @@ return
 function [Correction, Rp] = Step_14a(h1, d, R2, h2, f, area)
 % [Correction, Rp] = Step_14a(h1,d,R,h2,f,area)
 % This function computes correction for receiving/mobile antenna height
-% according to Annex 5 Paragraph 9 of ITU-R P.1546-5
+% according to Annex 5 Paragraph 9 of ITU-R P.1546-6
 % Input variables are
 % h1 - transmitting/base antenna height (m)
 % d  - receiving/mobile antenna distance (km)
 % R2  - height of the ground cover surrounding the receiving/mobile antenna,
 %      subject to a minimum height value of 10 m (m)
-%      Examples of reference heights are 20 m for an urban area, 30 m for
+%      Examples of reference heights are 15 m for an urban area, 20 m for
 %      a dense urban area and 10 m for a suburban area. For sea paths
 %      the notional value of R is 10 m.
 % h2 - receiving/mobile antenna height (m)
@@ -1628,6 +1667,7 @@ if(strcmp(area,'Urban') || strcmp(area,'Dense Urban') || strcmp(area,'Rural') ||
 elseif (strcmp(area,'Sea'))
     path='Sea';
 else
+    fclose all;
     error('Wrong area! Allowed area types: Sea, Rural, Suburban, Urban, or Dense Urban.');
 end
 
@@ -1651,6 +1691,7 @@ K_h2=3.2+6.2*log10(f);
 if (strcmp(path, 'Land'))
     
     if (h2<1)
+        fclose all;
         error('This recommendation is not valid for receiving/mobile antenna height h2 < 1 m when adjacent to land.');
     end
     
@@ -1714,6 +1755,7 @@ if (strcmp(path, 'Land'))
 else  % receiver adjacent to sea
     
     if (h2<3)
+        fclose all;
         error('This recommendation is not valid for receiving/mobile antenna height h2 < 3 m when adjacent to sea.');
     end
     
@@ -1813,7 +1855,7 @@ function [e, nu] = Step_12a(f,tca)
 % Step 12: If information on the terrain clearance angle at a
 % receiving/mobile antenna adjacent to land is available, correct the field
 % strength for terrain clearance angle at the receiver/mobile using the
-% method given in Annex 5, § 11 of ITU-R P.1546-5.
+% method given in Annex 5, § 11 of ITU-R P.1546-6.
 % Input parameters
 % f - frequency (MHz)
 % tca - terrain clearance angle (deg) is the elevation angle of the line
@@ -1865,7 +1907,7 @@ return
 function outVal = J(nu)
 % outVal = J(nu)
 % This function computes the value of equation (12a) 
-% according to Annex 5 Paragraph 4.3 of ITU-R P.1546-5 
+% according to Annex 5 Paragraph 4.3 of ITU-R P.1546-6 
 %
 % Rev   Date        Author                          Description
 %-------------------------------------------------------------------------------
@@ -1880,7 +1922,7 @@ return
 function [e,thetaS] = Step_13a(d,f,t,eff1,eff2)
 % [e,thetaS] = Step_13a(d,f,t,eff1,eff2)
 % Step 13: Calculate the estimated field strength due to tropospheric 
-% scattering using the method given in Annex 5 § 13 of ITU-R P.1546-5 and, 
+% scattering using the method given in Annex 5 § 13 of ITU-R P.1546-6 and, 
 % if necessary, limit the final predicted field strength accordingly.
 % Input variables
 % d - path length (km)
@@ -1913,13 +1955,12 @@ return
 function Correction = Step_15a(ha, R1, f)
 % Step 15: If there is clutter around the transmitting/base terninal, even
 % if at a lower height above ground than the antenna, correctg for its
-% effect using method given in Annex 5, § 10 of ITU-R P.1546-5.
+% effect using method given in Annex 5, § 10 of ITU-R P.1546-6.
 %
-% This correction applies when the transmitting/base terminal is over or
-% adjacent to land on which there is clutter. The correction should be used
-% in all such cases, including when the antenna is above the clutter
-% height. The correction is zero wehn the therminal is higher than a
-% frequency-dependent clearance height above the clutter.
+% This correction does not apply for an open/uncluttered transmitter. 
+% The correction should be used in all other cases, including when the antenna 
+% is above the clutter height. The correction is zero when the terminal is 
+% higher than a frequency-dependent clearance height above the clutter. 
 % Input variables are
 % ha - transmitting/base terminal antenna height above ground (m) (i.e., height of the mast)
 % R  - representative of the height of the ground cover surrounding the 
@@ -2000,7 +2041,7 @@ function E = Step_17a(ha, h2, d, Esup, varargin)
 % ha - transmitting/base terminal antenna height above ground (m) 
 % h2 - receiving/mobile terminal antenna height above ground (m)
 % d  - horizontal path distance (km)
-% Esup - the field strength given computed by steps 1-16 of P.1546-5 (2013)
+% Esup - the field strength given computed by steps 1-16 of P.1546-6 (2013)
 %        (dB(uV/m))
 % htter - terrain height in meters above sea level at the transmitter/base
 %         terminal (m)
@@ -2028,6 +2069,7 @@ function E = Step_17a(ha, h2, d, Esup, varargin)
 % v1    12AUG13     Ivica Stevanovic, OFCOM         Initial version
 
 if (isempty(ha) || isempty(h2) || isempty(d) || isempty(Esup))
+    fclose all;
     error('Input arguments ha, h2, d, or Esup not defined.')
 end
 
@@ -2052,8 +2094,8 @@ else
 end
 return
 
-function E = Step_18a(Emedian, q, f, env)
-% E = Step_18a(Emedian, q, f, env) 
+function E = Step_18a(Emedian, q, f, pathinfo, wa, area)
+% E = Step_18a(Emedian, q, f, pathinfo, area) 
 %
 % Step 18: If the field strength at a receiving/mobile antenna adjacent to
 % land exceeded at percentage locations other than 50% is required, correct
@@ -2064,34 +2106,54 @@ function E = Step_18a(Emedian, q, f, env)
 %            steps 1-17 (dB(uV/m))
 % q  - percentage location (betwee 1% and 99%)
 % f  - required frequency (MHz)
-% env - environment = 1 - for receivers with antennas below clutter height
-%                         in urban/suburban areas for mobile systems with
-%                         omnidirectional antennas at car-roof height
-%                   = 2 - for receivers with rooftop antennas near the
-%                         clutter height
-%                   = 3 - for receivers in rural areas
-% NOTE: The location variability correctin is NOT applied when the
+% pathinfo: 0/1     0 - no terrain profile information available, 
+%                   1 - terrain information available
+% wa -      the width of the square area over which the variability applies (m)
+%           typically in the range between 50 m and 1000 m
+% area:     string  Area around the receiver               'Rural', 'Suburban', 'Urban',
+%                                                          'Dense Urban'
+%                                                          'Sea'
+
+% NOTE: The location variability correction is NOT applied when the
 %       receiver/mobile is adjacent to sea.
 %
 % Rev   Date        Author                          Description
 %-------------------------------------------------------------------------------
 % v1    12AUG13     Ivica Stevanovic, OFCOM         Initial version
+% v2    30OCT19     Ivica Stevanovic, OFCOM         Updated according to P.1546-6
 
 if (q < 1 || q > 99)
+    fclose all;
     error('The percentage location out of band [1%, 99%].')
 end
 
-if env==1
-    K=1.2;
-elseif env == 2
-    K=1.0;
-elseif env == 3
-    K=0.5;
-else
-    error('Wrong value for env variable. Possible choices are 1, 2, and 3.');
-end
+if (pathinfo == 0)
+    if(strcmp(area,'Urban') || strcmp(area,'Dense Urban') )
+        sigma_L = 8;
+    elseif (strcmp(area,'Suburban'))
+        sigma_L = 10;
+    elseif (strcmp(area,'Rural') )
+        sigma_L = 12;
+    elseif (strcmp(area,'Sea'))
+        sigma_L = 0;
+    else        
+      fclose all;
+      error('Wrong area! Allowed area types: Sea, Rural, Suburban, Urban, or Dense Urban.');
+    end
 
-sigma_L=K+1.3*log10(f);
+else % pathinfo == 1
+    %sigma_L = ((0.0024*f)/1000.0 + 0.52)*wa.^(0.28);
+    
+    if(strcmp(area,'Rural') || strcmp(area,'Suburban') || strcmp(area,'Urban') || strcmp(area,'Dense Urban'))
+        % land area only
+        sigma_L = ((0.024*f)/1000.0 + 0.52)*wa.^(0.28);
+    elseif(strcmp(area,'Sea'))
+        sigma_L = 0;
+    else        
+      fclose all;
+      error('Wrong area! Allowed area types: Sea, Rural, Suburban, Urban, or Dense Urban.');
+    end
+end
 
 E=Emedian+Qi(q/100)*sigma_L;
 
@@ -2105,7 +2167,7 @@ function outVal = dslope(ha, h2, d, varargin)
 % outVal = dslope(ha,h2,d);
 %
 % This function computes slope distance as given by equations (37a,b) in ITU-R
-% P.1546-5
+% P.1546-6
 % Input variables are
 % ha - transmitting/base terminal antenna height above ground (m) 
 % h2 - receiving/mobile terminal antenna height above ground (m)
@@ -2134,6 +2196,7 @@ elseif (nargin == 5) % function call with terrain information
    
 else
     help dslope;
+    fclose all;
     error('Function called with wrong number of input variables');
 end
 
