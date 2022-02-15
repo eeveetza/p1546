@@ -5,6 +5,7 @@ function sg3db = P1546Compute(sg3db)
 % Author: Ivica Stevanovic, Federal Office of Communications, Switzerland
 % Revision History:
 % Date            Revision
+% 30OCT2019       Aligned with P1546-6
 % 13MAY2016       Introduced pathinfo
 % 05APR2016       Corrected bugs (data.htter, data.hrter)
 % 24NOV2014       Modified to fit non-GUI implementation
@@ -25,6 +26,7 @@ end
  data.t =  sg3db.TimePercent(userChoiceInt);
     
  data.q = 50;
+ data.wa = sg3db.wa;
 
 % data.heff = str2double(get( heff,'String'));
  data.heff =  sg3db.heff;
@@ -57,22 +59,12 @@ end
 
  data.NN=kindex;
 
- data.h2= sg3db.hRx(userChoiceInt);
+ data.h2= sg3db.h2;
 
- data.ha= sg3db.hTx(userChoiceInt);
+ data.ha= sg3db.ha;
 
-
- data.htter=[];
- data.hrter=[];
- data.eff1=[];
- data.eff2=[];
-
-% Correction 5.4.16, IS (there were several typos here, including <= sign
-% in the if clause and x(1) and x(end) instead of h_gamsl(1), h_gamsl(end)
-
-data.ha= sg3db.hTx(userChoiceInt);
-data.htter= sg3db.h_gamsl(1);
-data.hrter= sg3db.h_gamsl(end);
+data.htter= sg3db.htter;
+data.hrter= sg3db.hrter;
 
 
 data.hb=[]; %% correction to follow section 3.1.2
@@ -107,6 +99,7 @@ if (checkInput(data))
              data.path_c,...
              data.pathinfo,...
              data.q,...
+             data.wa,...
              data.PTx,...
              data.ha,...
              data.hb,...

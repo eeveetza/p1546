@@ -2,7 +2,7 @@ function heff = heffCalc(d,h,hT)
 % Effective transmitter height calculation
 % heff = heffCalc(d,h,hT)
 % where
-% d - vector of distances (km) measured from the transmitter 
+% d - vector of distances (km) measured from the transmitter
 % h - height profile (m), i.e., height at distance d(i)
 % hT - height of the transmiter antenna above ground (m)
 %
@@ -16,23 +16,34 @@ function heff = heffCalc(d,h,hT)
 %
 % Rev   Date        Author                          Description
 %-------------------------------------------------------------------------------
+% v3    14FEB19     Ivica Stevanovic, OFCOM         Added caveat when only two points exist in the profile
 % v2    03OCT14     Ivica Stevanovic, OFCOM         Use trapezoids for the average height
 % v1    23AUG13     Ivica Stevanovic, OFCOM         Initial version
 
 % check for the distance between transmitter and receiver
 
+if length(d)< 2
+    error('Number of points in the path must be larger than 1.');
+end
+if (length(d) == 2)
+   % interpolate points
+   h = linspace(h(1),h(2),10);
+   d = linspace(d(1),d(2),10);
+end
+
 if (d(end)>=15)
-
-kk = find( (d-d(1) >=3)  & (d-d(1) <=15) );
-k1=kk(1);
-k2=kk(end);
-
+    
+    kk = find( (d-d(1) >=3)  & (d-d(1) <=15) );
+    k1=kk(1);
+    k2=kk(end);
+    
 else
     kk=find( (d-d(1) >=0.2*d(end))  & (d-d(1) <=d(end)) );
 end
 
-x=d(kk);
-y=h(kk);
+    x=d(kk);
+    y=h(kk);
+
 
 %area=(x(2)-x(1))/2*y(1) + (x(end)-x(end-1))/2*y(end);
 area=0;

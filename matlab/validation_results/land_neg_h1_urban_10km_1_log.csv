@@ -13,6 +13,8 @@ Rx antenna height a. g. h2 (m);;;5;
 Tx clutter height R1 (m);;;20;
 Rx clutter height R2 (m);;;5;
 Rx clutter type;;;Suburban;
+Square area width wa for variability (m);§12 (34);;500;
+Terrain profile information available; ;;1;
 Tx effective TCA  theta_eff1 (deg);§4.3a);;1.07417;
 Terrain clearance angle tca (deg);§11 (31);;1.00257;
 
@@ -26,7 +28,7 @@ Trop. Scatt. field strength Ets (dBuV/m);§13 (36);13;22.5346;
 Rx repr. clutter height R2' (m);§9 (27);14;5.04225;
 Rx antenna height correction (dB);§9 (28-29);14;-6.57378;
 Tx clutter correction (dB);§10 (30);15;-26.1257;
-Rx slope-path correction (dB);§14 (37);16;-1.08574e-06;
+Rx slope-path correction (dB);§14 (37);16;-1.08574e-006;
 Field strength for d < 1 km (dB);§15 (38);17;;
 Field strength for q <> 50 %;§12 (33);18;;
 Resulting field strength for Ptx = 1kW (dBuV/m); ; ;2.44636;

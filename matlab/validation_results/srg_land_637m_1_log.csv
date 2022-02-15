@@ -13,6 +13,8 @@ Rx antenna height a. g. h2 (m);;;3.34;
 Tx clutter height R1 (m);;;0;
 Rx clutter height R2 (m);;;0;
 Rx clutter type;;;Suburban;
+Square area width wa for variability (m);§12 (34);;500;
+Terrain profile information available; ;;1;
 Tx effective TCA  theta_eff1 (deg);§4.3a);;-18.3351;
 Terrain clearance angle tca (deg);§11 (31);;10.5697;
 

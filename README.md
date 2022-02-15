@@ -1,15 +1,15 @@
-# MATLAB/Octave Implementation of Recommendation ITU-R P.1546-5
+# MATLAB/Octave Implementation of Recommendation ITU-R P.1546-6
 
-This code repository contains a MATLAB/Octave software implementation of  [Recommendation ITU-R P.1546-5](https://www.itu.int/rec/R-REC-P.1546/en) with a method for point-to-area predictions for terrestrial services in the frequency range 30 MHz to 4000 MHz.  
+This code repository contains a MATLAB/Octave software implementation of  [Recommendation ITU-R P.1546-6](https://www.itu.int/rec/R-REC-P.1546/en) with a method for point-to-area predictions for terrestrial services in the frequency range 30 MHz to 4000 MHz.  
 
-This version of the code is superseded. The reference version of this code (as approved by ITU-R Working Party 3K) is published on ITU-R SG 3 Software, Data, and Validation Web Page as digital supplement to [Recommendation ITU-R P.1546](https://www.itu.int/rec/R-REC-P.1546/en).
+This version of the code corresponds to the reference version of the code approved by ITU-R Working Party 3K and published on ITU-R SG 3 Software, Data, and Validation Web Page as digital supplement to [Recommendation ITU-R P.1546](https://www.itu.int/rec/R-REC-P.1546/en).
 
 The following table describes the structure of the folder `./matlab/` containing the MATLAB/Octave implementation of Recommendation ITU-R P.1546.
 
 | File/Folder               | Description                                                         |
 |----------------------------|---------------------------------------------------------------------|
-|`P1546FieldStrMixed.m`                | MATLAB function implementing Recommendation ITU-R P.1546-5          |
-|`validateP1546.m`          | MATLAB script used to validate the implementation of Recommendation ITU-R P.1546-5 in `P1546FieldStrMixed.m`             |
+|`P1546FieldStrMixed.m`                | MATLAB function implementing Recommendation ITU-R P.1546-6          |
+|`validateP1546.m`          | MATLAB script used to validate the implementation of Recommendation ITU-R P.1546-6 in `P1546FieldStrMixed.m`             |
 |`./validation_profiles/`    | Folder containing a proposed set of terrain profiles and inputs for validation of MATLAB implementation (or any other software implementation) of this Recommendation |
 |`./validation_results/`	   | Folder containing all the results written during the transmission loss computations for the set of terrain profiles defined in the folder `./validation_profiles/` |
 |`./src/`   |             Folder containing the functions used by `validateP1546.m` to read the test terrain profiles and compute all the parameters required as arguments of the function `P1546FieldStrMixed`|
@@ -18,31 +18,29 @@ The following table describes the structure of the folder `./matlab/` containing
 
 The function `P1546FieldStrMixed` can be called
 
-1. by invoking only the required input arguments:
+1. by invoking only the first nine required input arguments:
+~~~ 
+[Ep, Lb] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo);
 ~~~
-[Ep, Lb] = P1546FieldStrMixed(f, t, heff, h2, R2, area, d_v, path_c, pathinfo);
-~~~
-
 2. by explicitly invoking all the input arguments:
 ~~~
-[Ep, Lb] =  P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo, ...
-                         q,PTx,ha,hb,R1,tca,htter,hrter,eff1,eff2,debug,fidlog);
+[Ep, Lb] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo, ...
+                         q,wa,PTx,ha,hb,R1,tca,htter,hrter,eff1,eff2,debug,fidlog);
 ~~~ 
 3. or by explicitly omitting some of the optional input arguments:
 ~~~ 
-[Ep, Lb] =  P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo, ...
-                       q,PTx,[],[],[],[],[],[],[],[],debug,fidlog);
-~~~  
-
+[Ep, Lb] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo, ...
+                       q,wa,PTx,[],[],[],[],[],[],[],[],debug,fidlog); 
+~~~ 
 ## Required input arguments of function `P1546FieldStrMixed`
 
 | Variable          | Type   | Units | Limits       | Description  |
 |-------------------|--------|-------|--------------|--------------|
-| `f`               | scalar double | MHz   | 30 < `f` ≤ 3000 | Frequency   |
+| `f`               | scalar double | MHz   | 30 < `f` ≤ 4000 | Frequency   |
 | `t         `      | scalar double | %     | 1 ≤ `p` ≤ 50 | Time percentage for which the calculated basic transmission loss is not exceeded |
 | `heff`          | scalar double | m    |   | Effective height of the transmitting/base antenna, height over the average level of the ground between distances of 3 and 15 km from the transmitting/base antenna in the direction of the receiving/mobile antenna.|
 | `h2`           | scalar double    | m      |             |  Receiving/mobile antenna height above ground level |
-| `R2`           | scalar double    | m      |              |  Representative clutter height around receiver. Typical values: `R2`=10 for `area`='Rural' or 'Suburban' or 'Sea',  `R2`=20 for `area`='Urban', `R2`=30 for `area`='Dense Urban'    |
+| `R2`           | scalar double    | m      |              |  Representative clutter height around receiver. Typical values: `R2`=10 for `area`='Rural' or 'Suburban' or 'Sea',  `R2`=15 for `area`='Urban', `R2`=20 for `area`='Dense Urban'    |
 | `area`           | string    |       | 'Land, 'Sea', 'Warm', 'Cald'            |  Area around the receiver.|
 | `d_v`               | array double | km    | `sum(d_v)` ≤ ~1000 | Array of horizontal path lengths over different path zones starting from transmitter/base station terminal.|
 | `path_c`           | cell string    |       |     'Land', 'Sea', 'Warm', 'Cold'         |  Cell of strings defining the path zone for each given path lenght in `d_v` starting from the transmitter/base terminal. |
@@ -53,6 +51,7 @@ The function `P1546FieldStrMixed` can be called
 | Variable          | Type   | Units | Limits       | Description  |
 |-------------------|--------|-------|--------------|--------------|
 | `q`           | scalar double    | %      |   1 ≤ `q`  ≤ 99          |  Location percentage for which the calculated basic transmission loss is not exceeded. Default is 50%. |
+| `wa`           | scalar double    | m      |   ~50 ≤ wa ≤ ~1000         |  The width of the square area over which the variabilitiy applies. Needs to be defined only if `pathinfo`= 1 and `q`≠50. Default: 0 dB. |
 | `Ptx`           | scalar double    | kW      |   `Ptx` > 0          |  Tx power; Default: 1. |
 | `ha`           | scalar double    | m      |             |  Transmitter antenna height above ground. Defined in Annex 5 §3.1.1. Limits are defined in Annex 5 §3. |
 | `hb`           | scalar double    | m      |             |  Height of transmitter/base antenna above terrain height averaged over 0.2d and d, when d is less than 15 km and where terrain information is available. |
@@ -85,8 +84,8 @@ Not implemented in this version of the code:
 
 ## Software Versions
 The code was tested and runs on:
-* MATLAB 
-* Octave 
+* MATLAB versions 2017a and 2020a
+* Octave version 6.1.0
 
 ## References
 
