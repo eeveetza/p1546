@@ -68,6 +68,6 @@ Number of Points:,27
 Frequency,Tx antenna height,Tx antenna effective height,Rx antenna height,Polarisation HVC:1 2 3,Txdbm,MaxLb,Txgn,Rxgn,Rx antenna D/O,ERP_max_horiz,ERP_max_vertical,ERP_max_total,HRP_red,Time percentage,Losses relative to free space,Measured field strength,Basic transmission loss
 [MHz],[m],[m],[m],,[dBm],[dB],[dBi],[dBi],,[dBW],[dBW],[dB],[%],[dB],[dBuV/m],[dB]
 {Begin of Measurements}
-900,100,,25.0,,,,,,,,,30.000000,.00000000,20,,87.5374,110.847,,
-900,100,,5.0,,,,,,,,,30.000000,.00000000,20,,87.2719,111.113,,
+900,100,,25.0,,,,,,,,,30.000000,.00000000,20,,87.53739149,110.84745870,,
+900,100,,5.0,,,,,,,,,30.000000,.00000000,20,,87.27189310,111.11295709,,
 {End of Measurements}

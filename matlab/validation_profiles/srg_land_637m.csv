@@ -62,5 +62,5 @@ Frequency,Tx antenna height,Tx antenna effective height,Rx antenna height,Polari
 [MHz],[m],[m],[m],,[dBm],[dB],[dBi],[dBi],,[dBW],[dBW],[dBW],[dB],[%],[dB],[dBuV/m],[dB],,
 {Begin of Measurements}
 1
-  562.000, 95.5,, 3.34, 2,,,,,,,  40.0,  40.0,  18.3, 50,, 92.7525,111.542,-1,0
+  562.000, 95.5,, 3.34, 2,,,,,,,  40.0,  40.0,  18.3, 50,, 92.75249702,111.54222929,-1,0
 {End of Measurements}
