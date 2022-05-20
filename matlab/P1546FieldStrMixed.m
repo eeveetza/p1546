@@ -401,9 +401,9 @@ end
 
 % Step 2: For any given percentage of time (in the range 1% to 50% time)
 % determine two nominal time percentages as follows:
-% ï¿½ wanted time percentage > 1 and < 10, the lower and higher nominal
+% - wanted time percentage > 1 and < 10, the lower and higher nominal
 %   percentages are 1 and 10, respectively;
-% ï¿½ wanted time percentage > 10 and < 50, the lower and higher nominal
+% - wanted time percentage > 10 and < 50, the lower and higher nominal
 %   percentages are 10 and 50, respectively.
 % If the required percentage of time is equal to 1% or 10% or 50%, this
 % value should be regarded as the lower nominal percentage time and the
@@ -413,9 +413,9 @@ end
 
 % Step 3: For any wanted frequency (in the range 30 to 3 000 MHz) determine
 % two nominal frequencies as follows:
-% ï¿½ where the wanted frequency < 600 MHz, the lower and higher nominal
+% - where the wanted frequency < 600 MHz, the lower and higher nominal
 %   frequencies are 100 and 600 MHz, respectively;
-% ï¿½ where the wanted frequency > 600 MHz, the lower and higher nominal
+% - where the wanted frequency > 600 MHz, the lower and higher nominal
 %   frequencies are 600 and 2 000 MHz, respectively.
 % If the wanted frequency equals 100 or 600 or 2 000 MHz, this value should
 % be regarded as the lower nominal frequency and the
@@ -482,16 +482,16 @@ if (debug)
     fprintf(fid_log,['Sea path (km),%s,,' floatformat],path_sea_str,sum(ds));
     fprintf(fid_log,['Percentage time t (%%),,,' floatformat], t);
     fprintf(fid_log,['Percentage location q (%%),,,' floatformat],q);
-    fprintf(fid_log,['Tx antenna height h1 (m),ï¿½3 (4)-(7),,' floatformat], h1);
+    fprintf(fid_log,['Tx antenna height h1 (m),§3 (4)-(7),,' floatformat], h1);
     if isempty(ha) % this was introduced for compatibility with Octave, 5.4.16 IS
         fprintf(fid_log,'Tx antenna height a. g. ha (m),,,,\n');
     else
         fprintf(fid_log,['Tx antenna height a. g. ha (m),,,' floatformat], ha);
     end
     if isempty(hb)
-        fprintf(fid_log,'Tx antenna height hb (m),ï¿½3 (6),,,\n');
+        fprintf(fid_log,'Tx antenna height hb (m),§3 (6),,,\n');
     else
-        fprintf(fid_log,['Tx antenna height hb (m),ï¿½3 (6),,' floatformat],hb);
+        fprintf(fid_log,['Tx antenna height hb (m),§3 (6),,' floatformat],hb);
     end
     fprintf(fid_log,['Rx antenna height a. g. h2 (m),,,' floatformat],h2);
     fprintf(fid_log,['Tx clutter height R1 (m),,,' floatformat],R1);
@@ -499,9 +499,9 @@ if (debug)
     fprintf(fid_log,['Rx clutter height R2 (m),,,' floatformat], R2);
     fprintf(fid_log,'Rx clutter type,,,%s,\n', area);
     if isempty(wa)
-        fprintf(fid_log,'Square area width wa for variability (m),ï¿½12 (34),,,\n');
+        fprintf(fid_log,'Square area width wa for variability (m),§12 (34),,,\n');
     else
-        fprintf(fid_log,['Square area width wa for variability (m),ï¿½12 (34),,' '%d,\n'],wa);
+        fprintf(fid_log,['Square area width wa for variability (m),§12 (34),,' '%d,\n'],wa);
     end
     if isempty(pathinfo)
         fprintf(fid_log,'Terrain profile information available, ,,,\n');
@@ -509,14 +509,14 @@ if (debug)
         fprintf(fid_log,['Terrain profile information available, ,,' floatformat],pathinfo);
     end
     if isempty(eff1)
-        fprintf(fid_log,'Tx effective TCA  theta_eff1 (deg),ï¿½4.3a),,,\n');
+        fprintf(fid_log,'Tx effective TCA  theta_eff1 (deg),§4.3a),,,\n');
     else
-        fprintf(fid_log,['Tx effective TCA  theta_eff1 (deg),ï¿½4.3a),,' floatformat],eff1);
+        fprintf(fid_log,['Tx effective TCA  theta_eff1 (deg),§4.3a),,' floatformat],eff1);
     end
     if isempty(tca)
-        fprintf(fid_log,'Terrain clearance angle tca (deg),ï¿½11 (31),,,\n');
+        fprintf(fid_log,'Terrain clearance angle tca (deg),§11 (31),,,\n');
     else
-        fprintf(fid_log,['Terrain clearance angle tca (deg),ï¿½11 (31),,' floatformat],tca);
+        fprintf(fid_log,['Terrain clearance angle tca (deg),§11 (31),,' floatformat],tca);
     end
     fprintf(fid_log,'\n# Computed Parameters,Ref,Step,Value,\n');
 end
@@ -543,7 +543,7 @@ if (~isempty(ha) && ~isempty(h2))
 end
 
 if (debug)
-    fprintf(fid_log,['Maximum field strength Emax (dBuV/m),ï¿½2 (1),,' floatformat], EmaxF);
+    fprintf(fid_log,['Maximum field strength Emax (dBuV/m),§2 (1),,' floatformat], EmaxF);
 end
 
 
@@ -598,7 +598,7 @@ end
 
 
 % Step 11: If the prediction is for a mixed path, follow the step-by-step
-% procedure given in Annex 5, ï¿½ 8. This requires use of Steps 6 to 10 for
+% procedure given in Annex 5, § 8. This requires use of Steps 6 to 10 for
 % paths of each propagation type. Note that if different sections of the
 % path exist classified as both cold and warm sea, all sea sections should
 % be classified as warm sea.
@@ -607,7 +607,7 @@ if(debug==1)
 end
 E=Step_11a_rrc06(El,Es,dl,ds);
 if (debug == 1)
-    fprintf(fid_log,['Field strength (dBuV/m),ï¿½8 (17),11,' floatformat], E);
+    fprintf(fid_log,['Field strength (dBuV/m),§8 (17),11,' floatformat], E);
 end
 
 
@@ -622,8 +622,8 @@ if (~isempty(tca))
     [Correction, nu] = Step_12a(f,tca);
     E = E + Correction;
     if (debug == 1)
-        fprintf(fid_log,['TCA nu,ï¿½11 (32c),12,' floatformat], nu);
-        fprintf(fid_log,['TCA correction (dB),ï¿½11 (32a),12,' floatformat], Correction);
+        fprintf(fid_log,['TCA nu,§11 (32c),12,' floatformat], nu);
+        fprintf(fid_log,['TCA correction (dB),§11 (32a),12,' floatformat], Correction);
 
     end
 end
@@ -645,8 +645,8 @@ if(~(isempty(eff1)) && ~(isempty(eff2)))
         
     E = max(E, Ets);
     if (debug == 1)
-        fprintf(fid_log,['Path scattering theta_s (deg),ï¿½13 (35),13,' floatformat], theta_s);
-        fprintf(fid_log,['Trop. Scatt. field strength Ets (dBuV/m),ï¿½13 (36),13,' floatformat], Ets);
+        fprintf(fid_log,['Path scattering theta_s (deg),§13 (35),13,' floatformat], theta_s);
+        fprintf(fid_log,['Trop. Scatt. field strength Ets (dBuV/m),§13 (36),13,' floatformat], Ets);
     end
 end
 
@@ -674,8 +674,8 @@ end
     end
     E = E + Correction;
     if (debug == 1)
-        fprintf(fid_log,['Rx repr. clutter height R2'' (m),ï¿½9 (27),14,' floatformat], R2p);
-        fprintf(fid_log,['Rx antenna height correction (dB),ï¿½9 (28-29),14,' floatformat], Correction);
+        fprintf(fid_log,['Rx repr. clutter height R2'' (m),§9 (27),14,' floatformat], R2p);
+        fprintf(fid_log,['Rx antenna height correction (dB),§9 (28-29),14,' floatformat], Correction);
     end
 %end
 
@@ -688,7 +688,7 @@ if(~isempty(ha) && ~isempty(R1))
     end
     E = E + Step_15a(ha,R1,f);
     if (debug == 1)
-        fprintf(fid_log,['Tx clutter correction (dB),ï¿½10 (30),15,' floatformat], Step_15a(ha,R1,f));
+        fprintf(fid_log,['Tx clutter correction (dB),§10 (30),15,' floatformat], Step_15a(ha,R1,f));
     end    
 end
 
@@ -708,7 +708,7 @@ if (~isempty(ha) && ~isempty(h2))
         
         if (debug == 1)
             
-            fprintf(fid_log,['Rx slope-path correction (dB),ï¿½14 (37),16,' floatformat],Correction);
+            fprintf(fid_log,['Rx slope-path correction (dB),§14 (37),16,' floatformat],Correction);
         end            
         
     else
@@ -722,7 +722,7 @@ if (~isempty(ha) && ~isempty(h2))
         
         
         if (debug == 1)
-            fprintf(fid_log,['Rx slope-path correction (dB),ï¿½14 (37),16,' floatformat],Correction);
+            fprintf(fid_log,['Rx slope-path correction (dB),§14 (37),16,' floatformat],Correction);
             
             %fprintf(1,'Correction = %.2f\n', Step_16a(ha,h2,d, htter,hrter)) % corrected 5.4.16, IS;
         end   
@@ -745,10 +745,10 @@ end
 if (debug == 1)
     if (dtot < 0.9999999999)
         Edebug = E;
-        fprintf(fid_log,['Field strength for d < 1 km (dB),ï¿½15 (38),17,' '%.8f,\n'],Edebug);
+        fprintf(fid_log,['Field strength for d < 1 km (dB),§15 (38),17,' '%.8f,\n'],Edebug);
     else
         Edebug = [];
-        fprintf(fid_log,'Field strength for d < 1 km (dB),ï¿½15 (38),17,,\n');
+        fprintf(fid_log,'Field strength for d < 1 km (dB),§15 (38),17,,\n');
     end
     
 end
@@ -770,9 +770,9 @@ end
 
 if (debug == 1)
     if isempty(Edebug)
-        fprintf(fid_log,'Field strength for q <> 50 %%,ï¿½12 (33),18,,\n');
+        fprintf(fid_log,'Field strength for q <> 50 %%,§12 (33),18,,\n');
     else
-        fprintf(fid_log,['Field strength for q <> 50 %%,ï¿½12 (33),18,' '%.8f,\n'],Edebug);
+        fprintf(fid_log,['Field strength for q <> 50 %%,§12 (33),18,' '%.8f,\n'],Edebug);
     end
 end   
 
@@ -807,7 +807,7 @@ E = E + 10*log10(PTx);
 
 if (debug==1)
     fprintf(fid_log,['Resulting field strength for given PTx (dBuV/m), , ,' '%.8f,\n'],E);
-    fprintf(fid_log,['Resulting basic transmission loss (dB), ï¿½17 (40),20,' '%.8f,\n'],L);
+    fprintf(fid_log,['Resulting basic transmission loss (dB), §17 (40),20,' '%.8f,\n'],L);
     if(inside_file)
         try
             fclose(fid_log);
@@ -1103,7 +1103,7 @@ for l=(tinf == tsup)+1:2
     % Step 10: If the required percentage time does not coincide with the
     % lower nominal percentage time, repeat Steps 7 to 9 for the higher
     % nominal percentage time and interpolate the two field strengths using
-    % the method given in Annex 5, ï¿½ 7.
+    % the method given in Annex 5, § 7.
 end%end for (percentage)
 
 % Sec 7: Interpolation of field strength as a function of percentage time
@@ -1331,7 +1331,7 @@ return% function
         % Esup : field-strength value for hsup at the required distance.
     % The field strength resulting from extrapolation for h1 > 1 200 m 
     % should be limited if necessary such that it does not exceed the 
-    % maximum defined in ï¿½ 2.
+    % maximum defined in § 2.
     % This Recommendation is not valid for h1 > 3 000 m.
     
 %%   
@@ -1344,7 +1344,7 @@ function E = step814_815(tabulatedValues,h1,dinf,dsup,d)
 % Step 8.1.5: If the required distance does not coincide with the
 % lower nominal distance, repeat Step 8.1.4 for the higher nominal
 % distance and interpolate the two field strengths for distance
-% using the method given in Annex 5, ï¿½ 5.
+% using the method given in Annex 5, § 5.
 %
 % function E = step814_815(tabulatedValues,h1,dinf,dsup)
 % if only step 8.1.4 is needed pass the same value for dinf and dsup. 
@@ -1386,8 +1386,8 @@ return
 function E = step82(tabulatedValues,h1,dinf,dsup,d,path,fnom,Emaxvalue,t)
 % Step 8.2: For a transmitting/base antenna height h1 less than 10 m
 % determine the field strength for the required height and distance
-% using the method given in Annex 5, ï¿½ 4.2. If h1 is less than zero,
-% the method given in Annex 5, ï¿½ 4.3 should also be used.
+% using the method given in Annex 5, § 4.2. If h1 is less than zero,
+% the method given in Annex 5, § 4.3 should also be used.
 
 % function E = step82(tabulatedValues,h1,dinf,dsup,d,path,fnom,Emaxvalue,t)
 %
@@ -1826,7 +1826,7 @@ function [e, nu] = Step_12a(f,tca)
 % Step 12: If information on the terrain clearance angle at a
 % receiving/mobile antenna adjacent to land is available, correct the field
 % strength for terrain clearance angle at the receiver/mobile using the
-% method given in Annex 5, ï¿½ 11 of ITU-R P.1546-6.
+% method given in Annex 5, § 11 of ITU-R P.1546-6.
 % Input parameters
 % f - frequency (MHz)
 % tca - terrain clearance angle (deg) is the elevation angle of the line
@@ -1893,7 +1893,7 @@ return
 function [e,thetaS] = Step_13a(d,f,t,eff1,eff2)
 % [e,thetaS] = Step_13a(d,f,t,eff1,eff2)
 % Step 13: Calculate the estimated field strength due to tropospheric 
-% scattering using the method given in Annex 5 ï¿½ 13 of ITU-R P.1546-6 and, 
+% scattering using the method given in Annex 5 § 13 of ITU-R P.1546-6 and, 
 % if necessary, limit the final predicted field strength accordingly.
 % Input variables
 % d - path length (km)
@@ -1926,7 +1926,7 @@ return
 function Correction = Step_15a(ha, R1, f)
 % Step 15: If there is clutter around the transmitting/base terninal, even
 % if at a lower height above ground than the antenna, correctg for its
-% effect using method given in Annex 5, ï¿½ 10 of ITU-R P.1546-6.
+% effect using method given in Annex 5, § 10 of ITU-R P.1546-6.
 %
 % This correction does not apply for an open/uncluttered transmitter. 
 % The correction should be used in all other cases, including when the antenna 
