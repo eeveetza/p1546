@@ -1,4 +1,4 @@
-function sg3db = P1546ComputeStr(sg3db)
+﻿function sg3db = P1546ComputeStr(sg3db)
 % this function computes the field strength and path loss for the data
 % structure defined in sg3db, according to ITU-R P.1546-5
 %

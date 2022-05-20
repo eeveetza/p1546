@@ -1,4 +1,4 @@
-# MATLAB/Octave Implementation of Recommendation ITU-R P.1546-6
+﻿# MATLAB/Octave Implementation of Recommendation ITU-R P.1546-6
 
 This code repository contains a MATLAB/Octave software implementation of  [Recommendation ITU-R P.1546-6](https://www.itu.int/rec/R-REC-P.1546/en) with a method for point-to-area predictions for terrestrial services in the frequency range 30 MHz to 4000 MHz.  
 
@@ -35,13 +35,13 @@ Name1,Value1,...,NameN,ValueN:
 
 | Variable          | Type   | Units | Limits       | Description  |
 |-------------------|--------|-------|--------------|--------------|
-| `f`               | scalar double | MHz   | 30 < `f` ≤ 4000 | Frequency   |
-| `t         `      | scalar double | %     | 1 ≤ `p` ≤ 50 | Time percentage for which the calculated basic transmission loss is not exceeded |
+| `f`               | scalar double | MHz   | 30 < `f` â‰¤ 4000 | Frequency   |
+| `t         `      | scalar double | %     | 1 â‰¤ `p` â‰¤ 50 | Time percentage for which the calculated basic transmission loss is not exceeded |
 | `heff`          | scalar double | m    |   | Effective height of the transmitting/base antenna, height over the average level of the ground between distances of 3 and 15 km from the transmitting/base antenna in the direction of the receiving/mobile antenna.|
 | `h2`           | scalar double    | m      |             |  Receiving/mobile antenna height above ground level |
 | `R2`           | scalar double    | m      |              |  Representative clutter height around receiver. Typical values: `R2`=10 for `area`='Rural' or 'Suburban' or 'Sea',  `R2`=15 for `area`='Urban', `R2`=20 for `area`='Dense Urban'    |
 | `area`           | string    |       | 'Land, 'Sea', 'Warm', 'Cald'            |  Area around the receiver.|
-| `d_v`               | array double | km    | `sum(d_v)` ≤ ~1000 | Array of horizontal path lengths over different path zones starting from transmitter/base station terminal.|
+| `d_v`               | array double | km    | `sum(d_v)` â‰¤ ~1000 | Array of horizontal path lengths over different path zones starting from transmitter/base station terminal.|
 | `path_c`           | cell string    |       |     'Land', 'Sea', 'Warm', 'Cold'         |  Cell of strings defining the path zone for each given path lenght in `d_v` starting from the transmitter/base terminal. |
 | `pathinfo`           | scalar int    |      |        0, 1    |  0 - no terrain profile information available, 1 - terrain information available |
 
@@ -49,17 +49,17 @@ Name1,Value1,...,NameN,ValueN:
 ## Optional input arguments of function `P1546FieldStrMixed`
 | Variable          | Type   | Units | Limits       | Description  |
 |-------------------|--------|-------|--------------|--------------|
-| `q`           | scalar double    | %      |   1 ≤ `q`  ≤ 99          |  Location percentage for which the calculated basic transmission loss is not exceeded. Default is 50%. |
-| `wa`           | scalar double    | m      |   ~50 ≤ wa ≤ ~1000         |  The width of the square area over which the variabilitiy applies. Needs to be defined only if `pathinfo`= 1 and `q`≠50. Default: 0 dB. |
+| `q`           | scalar double    | %      |   1 â‰¤ `q`  â‰¤ 99          |  Location percentage for which the calculated basic transmission loss is not exceeded. Default is 50%. |
+| `wa`           | scalar double    | m      |   ~50 â‰¤ wa â‰¤ ~1000         |  The width of the square area over which the variabilitiy applies. Needs to be defined only if `pathinfo`= 1 and `q`â‰ 50. Default: 0 dB. |
 | `Ptx`           | scalar double    | kW      |   `Ptx` > 0          |  Tx power; Default: 1. |
-| `ha`           | scalar double    | m      |             |  Transmitter antenna height above ground. Defined in Annex 5 §3.1.1. Limits are defined in Annex 5 §3. |
+| `ha`           | scalar double    | m      |             |  Transmitter antenna height above ground. Defined in Annex 5 Â§3.1.1. Limits are defined in Annex 5 Â§3. |
 | `hb`           | scalar double    | m      |             |  Height of transmitter/base antenna above terrain height averaged over 0.2d and d, when d is less than 15 km and where terrain information is available. |
 | `R1`           | scalar double    | m      |              |  Representative clutter height around transmitter.   |
-| `tca`           | scalar double    | deg      | 0.55   ≤  `tca`  ≤ 40        |  Terrain clearance angle.|
+| `tca`           | scalar double    | deg      | 0.55   â‰¤  `tca`  â‰¤ 40        |  Terrain clearance angle.|
 | `htter`           | scalar double    | m      |         | Terrain height in meters above sea level at the transmitter/base.|
 | `hrter`           | scalar double    | m      |         | Terrain height in meters above sea level at the receiver/mobile.|
-| `eff1`           | scalar double    | deg      |        |  The h1 terminal's terrain clearance angle calculated using the method in §4.3 case a), whether or not h1 is negative.|
-| `eff2`           | scalar double    | deg      |        |  The h2 terminal's terrain clearance angle calculated using the method in §11, noting that this is the elevation angle relative to the local horizontal.|
+| `eff1`           | scalar double    | deg      |        |  The h1 terminal's terrain clearance angle calculated using the method in Â§4.3 case a), whether or not h1 is negative.|
+| `eff2`           | scalar double    | deg      |        |  The h2 terminal's terrain clearance angle calculated using the method in Â§11, noting that this is the elevation angle relative to the local horizontal.|
 | `debug`           | scalar int    |       |  0, 1           |  If `debug`= 1, the results are written in log files. Default: 0. |
 | `fidlog`           | scalar int    |       |     Only used if `debug`= 1        |  File identifier of the log file opened for writing outside the function. If not provided, a default file with a filename containing a timestamp will be created. |
 

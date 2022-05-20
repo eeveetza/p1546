@@ -1,4 +1,4 @@
-% MATLAB script that is used to validate the implementation of
+﻿% MATLAB script that is used to validate the implementation of
 % Recommendation ITU-R P.1546-6 as defined in the file P1546FieldStrMixed.m.
 % using a set of test terrain profiles provided by the user.
 %
