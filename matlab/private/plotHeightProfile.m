@@ -1,4 +1,4 @@
-﻿function sg3db = plotHeightProfile(sg3db)
+function sg3db = plotHeightProfile(sg3db)
 % this function plots the height profile as defined in the structure sg3db
 %
 % Author: Ivica Stevanovic, Federal Office of Communications, Switzerland

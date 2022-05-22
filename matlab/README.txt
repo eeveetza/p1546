@@ -1,4 +1,4 @@
-﻿P1546 Version 6.2 (12.07.21)
+P1546 Version 6.2 (22.05.22)
 
 MATLAB implementation of Recommendation ITU-R P.1546-6
 
@@ -32,7 +32,7 @@ Files and subfolders in the distribution .zip package.
 
 UPDATES AND FIXES
 -----------------
-Version 6.2 (12.07.21)
+Version 6.2 (22.05.22)
     - Simplified handling of optional input arguments
     - Renaming subfolder "src" into "private" which is automatically in the MATLAB search path
     - Minor editorial corrections
@@ -65,7 +65,7 @@ Version 1 (26.05.16)
 License and copyright notice
 
 Swiss Federal Office of Communications OFCOM (hereinafter the "Software Copyright Holder") makes the accompanying software 
-(hereinafter the â€œSoftwareâ€) available free from copyright restriction. 
+(hereinafter the "Software") available free from copyright restriction. 
 
 The Software Copyright Holder represents and warrants that to the best of its knowledge, 
 it has the necessary copyright rights to waive all of the copyright rights as permissible under national law in the Software 
@@ -75,7 +75,7 @@ No patent licence is granted, nor is a patent licensing commitment made, by impl
 
 Disclaimer: Other than as expressly provided herein, 
 
-(1) the Software is provided â€œAS ISâ€ WITH NO WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO, 
+(1) the Software is provided "AS IS" WITH NO WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO, 
 THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGMENT OF INTELLECTUAL PROPERTY RIGHTS and 
 
 (2) neither the Software Copyright Holder (or its affiliates) nor the ITU shall be held liable in any event for any damages whatsoever 

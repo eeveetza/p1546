@@ -1,4 +1,4 @@
-﻿function isequal = strcmp1(str1, str2)
+function isequal = strcmp1(str1, str2)
 % This function compares two strings (by previously removing any white
 % spaces and open/close brackets from the strings, and changing them to
 % lower case).

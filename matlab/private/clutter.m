@@ -1,4 +1,4 @@
-﻿function [RxClutterCode RxP1546Clutter R2external] = clutter(i, ClutterCodeType)
+function [RxClutterCode RxP1546Clutter R2external] = clutter(i, ClutterCodeType)
 % [ClutterClass P1546ClutterClass R] = clutter(i, ClutterCode)
 % This function maps the value i of a given clutter code type into
 % the corresponding clutter class description, P1546 clutter class description

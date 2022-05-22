@@ -1,4 +1,4 @@
-﻿% MATLAB script that is used to validate the implementation of
+% MATLAB script that is used to validate the implementation of
 % Recommendation ITU-R P.1546-6 as defined in the file P1546FieldStrMixed.m.
 % using a set of test terrain profiles provided by the user.
 %
@@ -17,7 +17,7 @@
 %                 Made sure htter and hrter are set for all paths (correction suggested by Alastair Taylor).
 % 08Apr2020       Using the field "First Point TX or RX:" to decide whether
 %                 to swap Tx/Rx accoding to Annex 5 Paragraph 1.1 or not
-% 25Feb2020       Implementation of P1546-6 Annex 5 Paragraph 1.1 on terminal designation
+% 25Feb2020       Implementation of ITU-R P.1546-6 Annex 5 Paragraph 1.1 on terminal designation
 % 30Oct2019       Aligned with ITU-R P.1546-6
 % 01Aug2017       Designation to 'sea and coastal' and 'land' done
 %                 according to the radio-meteorological code only, and not

@@ -1,4 +1,4 @@
-﻿function teff1 = teff1Calc(d,h,hT,hR)
+function teff1 = teff1Calc(d,h,hT,hR)
 % Terrain clearance angle calculator for transmitting/base antenna
 % teff1 = teff1Calc(d,h,hT,hR)
 % where

@@ -1,4 +1,4 @@
-﻿function alldefined=checkInput(data)
+function alldefined=checkInput(data)
 
 alldefined=true;
 
