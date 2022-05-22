@@ -1,4 +1,4 @@
-function tca = tcaCalc(d,h,hR,hT)
+﻿function tca = tcaCalc(d,h,hR,hT)
 % Terrain clearance angle calculator
 % tca = tcaCalc(d,h)
 % where

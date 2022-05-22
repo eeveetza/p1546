@@ -1,4 +1,4 @@
-%%
+﻿%%
 %% Return: true if the environment is Octave.
 %%
 function retval = isOctave

@@ -1,4 +1,4 @@
-% Folder,Filename,Dataset #,Reference,Predicted,Deviation: Predicted-Reference
+﻿% Folder,Filename,Dataset #,Reference,Predicted,Deviation: Predicted-Reference
 validation_profiles,b2iseac.csv,1,32.43201856,32.43201856,0.00000000
 validation_profiles,b2iseac.csv,2,25.65540064,25.65540064,-0.00000000
 validation_profiles,b2iseac.csv,3,17.79504219,17.79504219,0.00000000

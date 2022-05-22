@@ -1,4 +1,4 @@
-function heff = heffCalc(d,h,hT)
+﻿function heff = heffCalc(d,h,hT)
 % Effective transmitter height calculation
 % heff = heffCalc(d,h,hT)
 % where

@@ -1,4 +1,4 @@
-function h = plotTca(ax,d,h,hR,tca)
+﻿function h = plotTca(ax,d,h,hR,tca)
 % Plot the  line that clears all obstractions defined by terrain clearance
 % angle as in ITU-R P.1546-4 definition
 % h = plotTca(ax,d,h,hR,tca)

@@ -1,4 +1,4 @@
-# MATLAB/Octave Implementation of Recommendation ITU-R P.1546-6
+﻿# MATLAB/Octave Implementation of Recommendation ITU-R P.1546-6
 
 This code repository contains a MATLAB/Octave software implementation of  [Recommendation ITU-R P.1546-6](https://www.itu.int/rec/R-REC-P.1546/en) with a method for point-to-area predictions for terrestrial services in the frequency range 30 MHz to 4000 MHz.  
 
@@ -35,7 +35,7 @@ Name1,Value1,...,NameN,ValueN:
 
 | Variable          | Type   | Units | Limits       | Description  |
 |-------------------|--------|-------|--------------|--------------|
-| `f`               | scalar double | MHz   | 30 < `f` ≤ 4000 | Frequency   |
+| `f`               | scalar double | MHz   | 30 < `f` â‰¤ 4000 | Frequency   |
 | `t         `      | scalar double | %     | 1 ≤ `p` ≤ 50 | Time percentage for which the calculated basic transmission loss is not exceeded |
 | `heff`          | scalar double | m    |   | Effective height of the transmitting/base antenna, height over the average level of the ground between distances of 3 and 15 km from the transmitting/base antenna in the direction of the receiving/mobile antenna.|
 | `h2`           | scalar double    | m      |             |  Receiving/mobile antenna height above ground level |
@@ -50,7 +50,7 @@ Name1,Value1,...,NameN,ValueN:
 | Variable          | Type   | Units | Limits       | Description  |
 |-------------------|--------|-------|--------------|--------------|
 | `q`           | scalar double    | %      |   1 ≤ `q`  ≤ 99          |  Location percentage for which the calculated basic transmission loss is not exceeded. Default is 50%. |
-| `wa`           | scalar double    | m      |   ~50 ≤ wa ≤ ~1000         |  The width of the square area over which the variabilitiy applies. Needs to be defined only if `pathinfo`= 1 and `q`≠50. Default: 0 dB. |
+| `wa`           | scalar double    | m      |   ~50 ≤ wa ≤ ~1000         |  The width of the square area over which the variabilitiy applies. Needs to be defined only if `pathinfo`= 1 and `q` ≠ 50. Default: 0 dB. |
 | `Ptx`           | scalar double    | kW      |   `Ptx` > 0          |  Tx power; Default: 1. |
 | `ha`           | scalar double    | m      |             |  Transmitter antenna height above ground. Defined in Annex 5 §3.1.1. Limits are defined in Annex 5 §3. |
 | `hb`           | scalar double    | m      |             |  Height of transmitter/base antenna above terrain height averaged over 0.2d and d, when d is less than 15 km and where terrain information is available. |

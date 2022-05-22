@@ -1,4 +1,4 @@
-function sg3db=read_sg3_measurements2(filename,fileformat)
+﻿function sg3db=read_sg3_measurements2(filename,fileformat)
 %
 % This function reads the file <filename> from the ITU-R SG3 databank
 % written using the format <fileformat> and returns output variables in the
