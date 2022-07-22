@@ -1,36 +1,36 @@
-# Input Parameters;Ref;;Value;
-Tx Power (kW);;;1;
-Frequency f (MHz);;;90;
-Horizontal path length d (km);;;0.1;
-Land path (km);;;0.1;
-See path (km);;;0;
-Percentage time t (%);;;1;
-Percentage location q (%);;;50;
-Tx antenna height h1 (m);ง3 (4)-(7);;10;
-Tx antenna height a. g. ha (m);;;10;
-Tx antenna height hb (m);ง3 (6);;10;
-Rx antenna height a. g. h2 (m);;;100;
-Tx clutter height R1 (m);;;10;
-Rx clutter height R2 (m);;;10;
-Rx clutter type;;;Rural;
-Square area width wa for variability (m);ง12 (34);;500;
-Terrain profile information available; ;;1;
-Tx effective TCA  theta_eff1 (deg);ง4.3a);;-5.71059;
-Terrain clearance angle tca (deg);ง11 (31);;-45;
+# Input Parameters,Ref,,Value,
+Tx Power (kW),,,1,
+Frequency f (MHz),,,90,
+Horizontal path length d (km),,,0.1,
+Land path (km),,,0.1,
+Sea path (km),,,0,
+Percentage time t (%),,,1,
+Percentage location q (%),,,50,
+Tx antenna height h1 (m),ยง3 (4)-(7),,10,
+Tx antenna height a. g. ha (m),,,10,
+Tx antenna height hb (m),ยง3 (6),,10,
+Rx antenna height a. g. h2 (m),,,100,
+Tx clutter height R1 (m),,,10,
+Rx clutter height R2 (m),,,10,
+Rx clutter type,,,Rural,
+Square area width wa for variability (m),ยง12 (34),,500,
+Terrain profile information available, ,,1,
+Tx effective TCA  theta_eff1 (deg),ยง4.3a),,-5.71059,
+Terrain clearance angle tca (deg),ยง11 (31),,-45,
 
-# Computed Parameters;Ref;Step;Value;
-Maximum field strength Emax (dBuV/m);ง2 (1);;124.323;
-Field strength (dBuV/m);ง8 (17);11;89.8105;
-TCA nu;ง11 (32c);12;0.339154;
-TCA correction (dB);ง11 (32a);12;0.02003;
-Path scattering theta_s (deg);ง13 (35);13;0;
-Trop. Scatt. field strength Ets (dBuV/m);ง13 (36);13;82.5434;
-Rx repr. clutter height R2' (m);ง9 (27);14;10;
-Rx antenna height correction (dB);ง9 (28-29);14;15.3163;
-Tx clutter correction (dB);ง10 (30);15;-6.03285;
-Rx slope-path correction (dB);ง14 (37);16;-0.0350361;
-Field strength for d < 1 km (dB);ง15 (38);17;123.277;
-Field strength for q <> 50 %;ง12 (33);18;;
-Resulting field strength for Ptx = 1kW (dBuV/m); ; ;123.277;
-Resulting field strength for given PTx (dBuV/m); ; ;123.277;
-Resulting basic transmission loss (dB); ง17 (40);20;55.1075;
+# Computed Parameters,Ref,Step,Value,
+Maximum field strength Emax (dBuV/m),ยง2 (1),,124.323,
+Field strength (dBuV/m),ยง8 (17),11,89.8105,
+TCA nu,ยง11 (32c),12,0.339154,
+TCA correction (dB),ยง11 (32a),12,0.02003,
+Path scattering theta_s (deg),ยง13 (35),13,0,
+Trop. Scatt. field strength Ets (dBuV/m),ยง13 (36),13,82.5434,
+Rx repr. clutter height R2' (m),ยง9 (27),14,10,
+Rx antenna height correction (dB),ยง9 (28-29),14,15.3163,
+Tx clutter correction (dB),ยง10 (30),15,-6.03285,
+Rx slope-path correction (dB),ยง14 (37),16,-0.0350361,
+Field strength for d < 1 km (dB),ยง15 (38),17,123.27732673,
+Field strength for q <> 50 %,ยง12 (33),18,,
+Resulting field strength for Ptx = 1kW (dBuV/m), , ,123.27732673,
+Resulting field strength for given PTx (dBuV/m), , ,123.27732673,
+Resulting basic transmission loss (dB), ยง17 (40),20,55.10752346,

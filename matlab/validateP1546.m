@@ -12,9 +12,12 @@
 % Author: Ivica Stevanovic (IS), Federal Office of Communications, Switzerland
 % Revision History:
 % Date            Revision
+% 12Jul2021       Renaming subfolder "src" into "private" which is automatically in the MATLAB search path
+%                 Simplified handling of optional input arguments
+%                 Made sure htter and hrter are set for all paths (correction suggested by Alastair Taylor).
 % 08Apr2020       Using the field "First Point TX or RX:" to decide whether
 %                 to swap Tx/Rx accoding to Annex 5 Paragraph 1.1 or not
-% 25Feb2020       Implementation of P1546-6 Annex 5 Paragraph 1.1 on terminal designation
+% 25Feb2020       Implementation of ITU-R P.1546-6 Annex 5 Paragraph 1.1 on terminal designation
 % 30Oct2019       Aligned with ITU-R P.1546-6
 % 01Aug2017       Designation to 'sea and coastal' and 'land' done
 %                 according to the radio-meteorological code only, and not
@@ -34,8 +37,8 @@ close all;
 fclose all;
 
 
-% add path to the folder where the functions are defined
-addpath('./src')
+% % add path to the folder where the functions are defined
+% addpath('./src')
 
 % immediate printing to command window in octave
 if (isOctave)
@@ -88,7 +91,7 @@ if (flag_debug==1)
     if (fid_all == -1)
         error('The file combined_results.csv could not be opened');
     end
-    fprintf(fid_all,'%% %s;%s;%s;%s;%s;%s;\n','Folder','Filename','Dataset #','Reference','Predicted','Deviation: Predicted-Reference');
+    fprintf(fid_all,'%% %s,%s,%s,%s,%s,%s\n','Folder','Filename','Dataset #','Reference','Predicted','Deviation: Predicted-Reference');
 end
 
 if (length(filenames) < 1)
@@ -328,11 +331,11 @@ for iname = 1 : length(filenames)
         sg3db.ha= hhTx;
         sg3db.htter = [];
         sg3db.hrter = [];
-        if (xx<1)
+        %if (xx<1)
             sg3db.htter = h_gamsl(1);
             sg3db.hrter = h_gamsl(end);
             
-        end
+        %end
         
         
         sg3db.RxClutterCodeP1546 = RxP1546Clutter;
@@ -449,6 +452,7 @@ for iname = 1 : length(filenames)
         sg3db.wa = wa;
         try
             sg3db = P1546Compute(sg3db);
+            %fprintf(1,',,%.8f,%.8f\n',sg3db.PredictedFieldStrength,sg3db.PredictedPathLoss)
         catch message
             disp('Input parameters out of bounds');
             
@@ -463,7 +467,7 @@ for iname = 1 : length(filenames)
             % print the deviation of the predicted from the measured value,
             % double check this line
             % Measurement folder | Measurement File | Dataset | Measured Field Strength | Predicted Field Strength | Deviation from Measurement
-            fprintf(fid_all,'%s;%s;%d;%.2f;%.2f;%.2f\n',sg3db.MeasurementFolder,sg3db.MeasurementFileName,measID, sg3db.MeasuredFieldStrength(measID), sg3db.PredictedFieldStrength, sg3db.PredictedFieldStrength - sg3db.MeasuredFieldStrength(measID));
+            fprintf(fid_all,'%s,%s,%d,%.8f,%.8f,%.8f\n',sg3db.MeasurementFolder,sg3db.MeasurementFileName,measID, sg3db.MeasuredFieldStrength(measID), sg3db.PredictedFieldStrength, sg3db.PredictedFieldStrength - sg3db.MeasuredFieldStrength(measID));
         end
     end
 end % for all files in ./tests

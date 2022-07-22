@@ -1,5 +1,5 @@
 function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,varargin)
-% P1546FieldStrMixed: ITU 1546-6 (2019) Field strength calculator
+% P1546FieldStrMixed: Recommendation ITU-R P.1546-6  
 %
 % [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,varargin)
 %
@@ -68,6 +68,31 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 %
 % L:        dB      Path loss
 %
+%
+% How to use:
+% 
+% 1) by invoking only the first nine required input arguments:
+% 
+%   [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo);
+%
+% 2) by invoking optional arguments in addition to the first nine required arguments
+%  using Name-Value Pair Arguments. Name is the argument name and Value is the
+%  corresponding value. Name must appear inside quotes. You can specify
+%  several name and value pair arguments in any order as
+%  Name1,Value1,...,NameN,ValueN. 
+%
+%  [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo, ...
+%                              'q', 50, 'wa', 27, 'Ptx', 1, 'ha', 100);
+%
+
+
+% Examples:
+%   [E, L] = P1546FieldStrMixed(2700,50,1600,1.5,10,'Suburban',20,'Land',1);
+%
+%   [E, L] = P1546FieldStrMixed(2700,50,1600,1.5,10,'Suburban',20,'Land',1, 'q', 50, 'wa', 27, 'Ptx', 1, 'ha', 100);
+% 
+% Numbers refer to Rec. ITU-R P.1546-6
+%
 % This function implements ITU-R P.1546-6 recommendation,
 % describing a method for point-to-area radio propagation predictions for
 % terrestrial services in the frequency range 30 MHz to 4000 MHz. It is
@@ -89,32 +114,13 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 %  - Annex 5, Section 4.3a): C_h1 calculation (terrain database is
 %  available and the potential of discontinuities around h1 = 0 is of no
 %  concern)
-%
-% How to use:
-% 
-% 1) by invoking only the first nine required input arguments:
-% 
-%   E = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo);
-%
-% 2) by explicitly invoking all the input arguments:
-%
-%   E = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo, ...
-%                          q,wa,PTx,ha,hb,R1,tca,htter,hrter,eff1,eff2,debug,fidlog);
-%
-% 3) or by explicitly omitting some of the optional input arguments:
-% 
-%   E = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo, ...
-%                        q,wa,PTx,[],[],[],[],[],[],[],[],debug,fidlog);
-%
-% Examples:
-%   E=P1546FieldStrMixed(2700,50,1600,1.5,10,'Suburban',20,'Land',1);
-%
-%   [E,L]=P1546FieldStrMixed(2700,50,1600,1.5,10,'Suburban',20,'Land',1,50,100, 1,[],[],[],[],[],[],[],[],1,[]);
-% 
-% Numbers refer to Rec. ITU-R P.1546-6
 
 % Rev   Date        Author                          Description
 %-------------------------------------------------------------------------------
+% v16   12JUL21     Ivica Stevanovic, OFCOM         Simplified handling of optional input arguments and 
+%                                                   renaming subfolder "src" into "private" which is automatically in the MATLAB search path
+%                                                   (as suggested by K. Konstantinou, Ofcom UK)   
+%                                                   and minor editorial correction (suggested by A. Taylor, UK)
 % v15   20OCT19     Ivica Stevanovic, OFCOM         Aligned with ITU-R P.1546-6
 %                                                   Corrected a bug in h1Calc (Reported by M. Friedrich, Germany)
 % v14   11APR19     Ivica Stevanovic, OFCOM         Steps 1-16 use d = 1 km for 0.04 < d < 1 km
@@ -149,40 +155,27 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 %  Copyright (c) 2013-19, Ivica Stevanovic
 %  All rights reserved.
 % 
-% Redistribution and use in source and binary forms, with or without
-% modification, are permitted provided that the following conditions are
-% met:
-% 
-%     * Redistributions of source code must retain the above copyright
-%       notice, this list of conditions and the following disclaimer.
-%     * Redistributions in binary form must reproduce the above copyright
-%       notice, this list of conditions and the following disclaimer in
-%       the documentation and/or other materials provided with the distribution
+
 % 
 %
 % MATLAB Version 8.3.0.532 (R2014a) used in development of this code
 %% 
-% THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-% AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-% IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-% ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-% LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-% CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-% SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-% INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-% CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-% ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-% POSSIBILITY OF SUCH DAMAGE.
+% The Software is provided "AS IS" WITH NO WARRANTIES, EXPRESS OR IMPLIED, 
+% INCLUDING BUT NOT LIMITED TO, THE WARRANTIES OF MERCHANTABILITY, FITNESS 
+% FOR A PARTICULAR PURPOSE AND NON-INFRINGMENT OF INTELLECTUAL PROPERTY RIGHTS 
+% 
+% Neither the Software Copyright Holder (or its affiliates) nor the ITU 
+% shall be held liable in any event for any damages whatsoever
+% (including, without limitation, damages for loss of profits, business 
+% interruption, loss of information, or any other pecuniary loss)
+% arising out of or related to the use of or inability to use the Software.
 %
-% THE AUTHORS AND OFCOM (CH) DO NOT PROVIDE ANY SUPPORT FOR THIS SOFTWARE
+% THE AUTHOR(S) AND OFCOM (CH) DO NOT PROVIDE ANY SUPPORT FOR THIS SOFTWARE
+%
 %%
 
 
 %% Read the input arguments and check them
-
-if nargin > 23    warning(strcat('P1546FieldStrMixed: Too many input arguments; The function requires at most 22',...
-        'input arguments. Additional values ignored. Input values may be wrongly assigned.'));
-end
 
 if nargin <9 
     fclose all;
@@ -224,86 +217,38 @@ end
 
 % Optional arguments
 
-ha=[];
-hb=[];
-R1=[];
-tca=[];
-htter=[];
-hrter=[];
-eff1=[];
-eff2=[];
-q=50;
-wa = [];
-PTx = 1;
-debug = 0;
-fid_log = [];
+% Parse the optional input
+iP = inputParser;
+iP.addParameter('q',50)
+iP.addParameter('wa',[])
+iP.addParameter('PTx',1)
+iP.addParameter('ha',[])
+iP.addParameter('hb',[])
+iP.addParameter('R1',[])
+iP.addParameter('tca',[])
+iP.addParameter('htter',[])
+iP.addParameter('hrter',[])
+iP.addParameter('eff1',[])
+iP.addParameter('eff2',[])
+iP.addParameter('debug',0)
+iP.addParameter('fid_log',[])
+iP.parse(varargin{:});
 
-icount = 10;
+% Unpack from input parser
+ha = iP.Results.ha;
+hb = iP.Results.hb;
+R1 = iP.Results.R1;
+tca = iP.Results.tca;
+htter = iP.Results.htter;
+hrter = iP.Results.hrter;
+eff1 = iP.Results.eff1;
+eff2 = iP.Results.eff2;
+q = iP.Results.q;
+wa = iP.Results.wa;
+PTx = iP.Results.PTx;
+debug = iP.Results.debug;
+fid_log = iP.Results.fid_log;
 
-if nargin >=icount
-    q=varargin{1};
-    if nargin >=icount+1
-        if ~isempty(varargin{2})
-            wa=varargin{2};
-        end
-        if nargin >=icount+2
-            if ~isempty(varargin{3})
-                PTx=varargin{3};
-            end
-            if nargin >=icount + 3
-                if ~isempty(varargin{4})
-                    ha=varargin{4};
-                end
-                if nargin >=icount + 4
-                    if ~isempty(varargin{5})
-                        hb=varargin{5};
-                    end
-                    if nargin >=icount + 5
-                        if ~isempty(varargin{6})
-                            R1=varargin{6};
-                        end
-                        if nargin >=icount + 6
-                            if ~isempty(varargin{7})
-                                tca=varargin{7};
-                            end
-                            if nargin >=icount + 7
-                                if ~isempty(varargin{8})
-                                    htter=varargin{8};
-                                end
-                                if nargin >=icount + 8
-                                    if ~isempty(varargin{9})
-                                        hrter=varargin{9};
-                                    end
-                                    if nargin >=icount + 9
-                                        if ~isempty(varargin{10})
-                                            eff1=varargin{10};
-                                        end
-                                        if nargin >=icount + 10
-                                            if ~isempty(varargin{11})
-                                                eff2=varargin{11};
-                                            end
-                                            if nargin >=icount + 11
-                                                if ~isempty(varargin{12})
-                                                    debug = varargin{12};
-                                                end
-                                                if nargin >=icount + 12
-                                                    if ~isempty(varargin{13})
-                                                        fid_log = varargin{13};
-                                                    end
-                                                end
-                                            end
-                                        end
-                                        
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-end
         
 % handle number fid_log is reserved here for writing the files
 % if fid_log is already open outside of this function, the file needs to be
@@ -447,9 +392,9 @@ end
 
 % Step 2: For any given percentage of time (in the range 1% to 50% time)
 % determine two nominal time percentages as follows:
-% – wanted time percentage > 1 and < 10, the lower and higher nominal
+% - wanted time percentage > 1 and < 10, the lower and higher nominal
 %   percentages are 1 and 10, respectively;
-% – wanted time percentage > 10 and < 50, the lower and higher nominal
+% - wanted time percentage > 10 and < 50, the lower and higher nominal
 %   percentages are 10 and 50, respectively.
 % If the required percentage of time is equal to 1% or 10% or 50%, this
 % value should be regarded as the lower nominal percentage time and the
@@ -459,9 +404,9 @@ end
 
 % Step 3: For any wanted frequency (in the range 30 to 3 000 MHz) determine
 % two nominal frequencies as follows:
-% – where the wanted frequency < 600 MHz, the lower and higher nominal
+% - where the wanted frequency < 600 MHz, the lower and higher nominal
 %   frequencies are 100 and 600 MHz, respectively;
-% – where the wanted frequency > 600 MHz, the lower and higher nominal
+% - where the wanted frequency > 600 MHz, the lower and higher nominal
 %   frequencies are 600 and 2 000 MHz, respectively.
 % If the wanted frequency equals 100 or 600 or 2 000 MHz, this value should
 % be regarded as the lower nominal frequency and the
@@ -517,54 +462,54 @@ end
 
 % Print the data in the log file if debug option is set
 
-floatformat= '%g;\n';
+floatformat= '%g,\n';
 
 if (debug)
-    fprintf(fid_log,'# Input Parameters;Ref;;Value;\n');
-    fprintf(fid_log,['Tx Power (kW);;;' floatformat],PTx);
-    fprintf(fid_log,['Frequency f (MHz);;;' floatformat],f);
-    fprintf(fid_log,['Horizontal path length d (km);;;' floatformat], dtot);
-    fprintf(fid_log,['Land path (km);;;' floatformat],sum(dl));
-    fprintf(fid_log,['See path (km);%s;;' floatformat],path_sea_str,sum(ds));
-    fprintf(fid_log,['Percentage time t (%%);;;' floatformat], t);
-    fprintf(fid_log,['Percentage location q (%%);;;' floatformat],q);
-    fprintf(fid_log,['Tx antenna height h1 (m);ง3 (4)-(7);;' floatformat], h1);
+    fprintf(fid_log,'# Input Parameters,Ref,,Value,\n');
+    fprintf(fid_log,['Tx Power (kW),,,' floatformat],PTx);
+    fprintf(fid_log,['Frequency f (MHz),,,' floatformat],f);
+    fprintf(fid_log,['Horizontal path length d (km),,,' floatformat], dtot);
+    fprintf(fid_log,['Land path (km),,,' floatformat],sum(dl));
+    fprintf(fid_log,['Sea path (km),%s,,' floatformat],path_sea_str,sum(ds));
+    fprintf(fid_log,['Percentage time t (%%),,,' floatformat], t);
+    fprintf(fid_log,['Percentage location q (%%),,,' floatformat],q);
+    fprintf(fid_log,['Tx antenna height h1 (m),ยง3 (4)-(7),,' floatformat], h1);
     if isempty(ha) % this was introduced for compatibility with Octave, 5.4.16 IS
-        fprintf(fid_log,'Tx antenna height a. g. ha (m);;;;\n');
+        fprintf(fid_log,'Tx antenna height a. g. ha (m),,,,\n');
     else
-        fprintf(fid_log,['Tx antenna height a. g. ha (m);;;' floatformat], ha);
+        fprintf(fid_log,['Tx antenna height a. g. ha (m),,,' floatformat], ha);
     end
     if isempty(hb)
-        fprintf(fid_log,'Tx antenna height hb (m);ง3 (6);;;\n');
+        fprintf(fid_log,'Tx antenna height hb (m),ยง3 (6),,,\n');
     else
-        fprintf(fid_log,['Tx antenna height hb (m);ง3 (6);;' floatformat],hb);
+        fprintf(fid_log,['Tx antenna height hb (m),ยง3 (6),,' floatformat],hb);
     end
-    fprintf(fid_log,['Rx antenna height a. g. h2 (m);;;' floatformat],h2);
-    fprintf(fid_log,['Tx clutter height R1 (m);;;' floatformat],R1);
+    fprintf(fid_log,['Rx antenna height a. g. h2 (m),,,' floatformat],h2);
+    fprintf(fid_log,['Tx clutter height R1 (m),,,' floatformat],R1);
     %fprintf(fid_log,'Tx clutter type;;%s;\n',area);
-    fprintf(fid_log,['Rx clutter height R2 (m);;;' floatformat], R2);
-    fprintf(fid_log,'Rx clutter type;;;%s;\n', area);
+    fprintf(fid_log,['Rx clutter height R2 (m),,,' floatformat], R2);
+    fprintf(fid_log,'Rx clutter type,,,%s,\n', area);
     if isempty(wa)
-        fprintf(fid_log,'Square area width wa for variability (m);ง12 (34);;;\n');
+        fprintf(fid_log,'Square area width wa for variability (m),ยง12 (34),,,\n');
     else
-        fprintf(fid_log,['Square area width wa for variability (m);ง12 (34);;' '%d;\n'],wa);
+        fprintf(fid_log,['Square area width wa for variability (m),ยง12 (34),,' '%d,\n'],wa);
     end
     if isempty(pathinfo)
-        fprintf(fid_log,'Terrain profile information available; ;;;\n');
+        fprintf(fid_log,'Terrain profile information available, ,,,\n');
     else
-        fprintf(fid_log,['Terrain profile information available; ;;' floatformat],pathinfo);
+        fprintf(fid_log,['Terrain profile information available, ,,' floatformat],pathinfo);
     end
     if isempty(eff1)
-        fprintf(fid_log,'Tx effective TCA  theta_eff1 (deg);ง4.3a);;;\n');
+        fprintf(fid_log,'Tx effective TCA  theta_eff1 (deg),ยง4.3a),,,\n');
     else
-        fprintf(fid_log,['Tx effective TCA  theta_eff1 (deg);ง4.3a);;' floatformat],eff1);
+        fprintf(fid_log,['Tx effective TCA  theta_eff1 (deg),ยง4.3a),,' floatformat],eff1);
     end
     if isempty(tca)
-        fprintf(fid_log,'Terrain clearance angle tca (deg);ง11 (31);;;\n');
+        fprintf(fid_log,'Terrain clearance angle tca (deg),ยง11 (31),,,\n');
     else
-        fprintf(fid_log,['Terrain clearance angle tca (deg);ง11 (31);;' floatformat],tca);
+        fprintf(fid_log,['Terrain clearance angle tca (deg),ยง11 (31),,' floatformat],tca);
     end
-    fprintf(fid_log,'\n# Computed Parameters;Ref;Step;Value;\n');
+    fprintf(fid_log,'\n# Computed Parameters,Ref,Step,Value,\n');
 end
 
 % Compute the maximum value of the field strength as given in Annex 5, Sec.
@@ -589,7 +534,7 @@ if (~isempty(ha) && ~isempty(h2))
 end
 
 if (debug)
-    fprintf(fid_log,['Maximum field strength Emax (dBuV/m);ง2 (1);;' floatformat], EmaxF);
+    fprintf(fid_log,['Maximum field strength Emax (dBuV/m),ยง2 (1),,' floatformat], EmaxF);
 end
 
 
@@ -601,8 +546,9 @@ for ii=1:NN
         path=path_c;
     end
     
-    
-    disp(['5: Following Steps 6 --> 10 for propagation path ' num2str(ii) ' of type: ' path])
+    if(debug==1)
+        disp(['5: Following Steps 6 --> 10 for propagation path ' num2str(ii) ' of type: ' path])
+    end
     % Step 5: For each propagation type follow Steps 6 to 10.
   
     if strcmp(path,'Warm') || strcmp(path,'Cold') || strcmp(path,'Sea')
@@ -643,14 +589,16 @@ end
 
 
 % Step 11: If the prediction is for a mixed path, follow the step-by-step
-% procedure given in Annex 5, ง 8. This requires use of Steps 6 to 10 for
+% procedure given in Annex 5, ยง 8. This requires use of Steps 6 to 10 for
 % paths of each propagation type. Note that if different sections of the
 % path exist classified as both cold and warm sea, all sea sections should
 % be classified as warm sea.
-disp('11: Combining field strengths for mixed paths if any')
+if(debug==1)
+    disp('11: Combining field strengths for mixed paths if any')
+end
 E=Step_11a_rrc06(El,Es,dl,ds);
 if (debug == 1)
-    fprintf(fid_log,['Field strength (dBuV/m);ง8 (17);11;' floatformat], E);
+    fprintf(fid_log,['Field strength (dBuV/m),ยง8 (17),11,' floatformat], E);
 end
 
 
@@ -659,12 +607,14 @@ end
 % strength for terrain clearance angle at the receiver/mobile using the
 % method given in Annex 5, Sec. 11.
 if (~isempty(tca))
-    disp('12: Terrain clearence angle correction')
+    if(debug==1)
+        disp('12: Terrain clearence angle correction')
+    end
     [Correction, nu] = Step_12a(f,tca);
     E = E + Correction;
     if (debug == 1)
-        fprintf(fid_log,['TCA nu;ง11 (32c);12;' floatformat], nu);
-        fprintf(fid_log,['TCA correction (dB);ง11 (32a);12;' floatformat], Correction);
+        fprintf(fid_log,['TCA nu,ยง11 (32c),12,' floatformat], nu);
+        fprintf(fid_log,['TCA correction (dB),ยง11 (32a),12,' floatformat], Correction);
 
     end
 end
@@ -673,7 +623,9 @@ end
 % scattering using the method given in Annex 5, Sec. 13 and take the
 % maximum of E and Ets.
 if(~(isempty(eff1)) && ~(isempty(eff2)))
-    disp('13: Calculating correction due to trophospheric scattering')
+    if(debug==1)
+        disp('13: Calculating correction due to trophospheric scattering')
+    end
     Ets = 0;
     theta_s = 0;
     if (d >= 1)
@@ -684,8 +636,8 @@ if(~(isempty(eff1)) && ~(isempty(eff2)))
         
     E = max(E, Ets);
     if (debug == 1)
-        fprintf(fid_log,['Path scattering theta_s (deg);ง13 (35);13;' floatformat], theta_s);
-        fprintf(fid_log,['Trop. Scatt. field strength Ets (dBuV/m);ง13 (36);13;' floatformat], Ets);
+        fprintf(fid_log,['Path scattering theta_s (deg),ยง13 (35),13,' floatformat], theta_s);
+        fprintf(fid_log,['Trop. Scatt. field strength Ets (dBuV/m),ยง13 (36),13,' floatformat], Ets);
     end
 end
 
@@ -696,8 +648,9 @@ if ((isempty(R2)) || isempty(h2) || isempty(area))
     warning('R2, h2, and area are not defined. The following default values used:')
     warning('Rx in Rural area: R2 = 10 m, h2 = R2');
 end
-
-    disp('14: Receiving/mobile antenna height correction.')
+    if(debug==1)
+        disp('14: Receiving/mobile antenna height correction.')
+    end
     if iscell(path_c) % in case path_c is in cell form
         path=path_c{end};
     else % in case path_c is a string
@@ -712,8 +665,8 @@ end
     end
     E = E + Correction;
     if (debug == 1)
-        fprintf(fid_log,['Rx repr. clutter height R2'' (m);ง9 (27);14;' floatformat], R2p);
-        fprintf(fid_log,['Rx antenna height correction (dB);ง9 (28-29);14;' floatformat], Correction);
+        fprintf(fid_log,['Rx repr. clutter height R2'' (m),ยง9 (27),14,' floatformat], R2p);
+        fprintf(fid_log,['Rx antenna height correction (dB),ยง9 (28-29),14,' floatformat], Correction);
     end
 %end
 
@@ -721,16 +674,20 @@ end
 % if at lower height above ground than the antenna, correct for its effect
 % using the  method given in Annex 5, Sec. 10
 if(~isempty(ha) && ~isempty(R1))
-    disp('15: Correct for the transmitter/base clutter.')
+    if(debug==1)
+        disp('15: Correct for the transmitter/base clutter.')
+    end
     E = E + Step_15a(ha,R1,f);
     if (debug == 1)
-        fprintf(fid_log,['Tx clutter correction (dB);ง10 (30);15;' floatformat], Step_15a(ha,R1,f));
+        fprintf(fid_log,['Tx clutter correction (dB),ยง10 (30),15,' floatformat], Step_15a(ha,R1,f));
     end    
 end
 
 % Step 16: Apply the slope-path correction given in annex 5, Sec. 14
 if (~isempty(ha) && ~isempty(h2))
-    disp('16: Slope-path correction.');
+    if(debug==1)
+        disp('16: Slope-path correction.');
+    end
     if (isempty(htter) && isempty(hrter))
         
         if (d >= 1)
@@ -742,7 +699,7 @@ if (~isempty(ha) && ~isempty(h2))
         
         if (debug == 1)
             
-            fprintf(fid_log,['Rx slope-path correction (dB);ง14 (37);16;' floatformat],Correction);
+            fprintf(fid_log,['Rx slope-path correction (dB),ยง14 (37),16,' floatformat],Correction);
         end            
         
     else
@@ -756,7 +713,7 @@ if (~isempty(ha) && ~isempty(h2))
         
         
         if (debug == 1)
-            fprintf(fid_log,['Rx slope-path correction (dB);ง14 (37);16;' floatformat],Correction);
+            fprintf(fid_log,['Rx slope-path correction (dB),ยง14 (37),16,' floatformat],Correction);
             
             %fprintf(1,'Correction = %.2f\n', Step_16a(ha,h2,d, htter,hrter)) % corrected 5.4.16, IS;
         end   
@@ -765,7 +722,9 @@ end
 
 % Step 17: % In case the path is less than 1 km
 if (dtot < 0.9999999999)
-    disp('17: Extrapolating the field strength for paths less than 1 km')
+    if(debug==1)
+        disp('17: Extrapolating the field strength for paths less than 1 km')
+    end
     if(isempty(htter) && isempty(hrter))
         E = Step_17a(ha,h2,d,E);
     else
@@ -777,10 +736,10 @@ end
 if (debug == 1)
     if (dtot < 0.9999999999)
         Edebug = E;
-        fprintf(fid_log,['Field strength for d < 1 km (dB);ง15 (38);17;' floatformat],Edebug);
+        fprintf(fid_log,['Field strength for d < 1 km (dB),ยง15 (38),17,' '%.8f,\n'],Edebug);
     else
         Edebug = [];
-        fprintf(fid_log,'Field strength for d < 1 km (dB);ง15 (38);17;;\n');
+        fprintf(fid_log,'Field strength for d < 1 km (dB),ยง15 (38),17,,\n');
     end
     
 end
@@ -791,8 +750,9 @@ Edebug = [];
 if (~isempty(q))
     if (q~=50)
         if (~strcmp(area,'Sea'))
-            disp('18: Correct for percentage locations over the land area different from 50 %.')
-            
+            if(debug==1)
+                disp('18: Correct for percentage locations over the land area different from 50 %.')
+            end
             E = Step_18a(E,q,f,pathinfo, wa, area);
             Edebug = E;
         end
@@ -801,9 +761,9 @@ end
 
 if (debug == 1)
     if isempty(Edebug)
-        fprintf(fid_log,'Field strength for q <> 50 %%;ง12 (33);18;;\n');
+        fprintf(fid_log,'Field strength for q <> 50 %%,ยง12 (33),18,,\n');
     else
-        fprintf(fid_log,['Field strength for q <> 50 %%;ง12 (33);18;' floatformat],Edebug);
+        fprintf(fid_log,['Field strength for q <> 50 %%,ยง12 (33),18,' '%.8f,\n'],Edebug);
     end
 end   
 
@@ -813,14 +773,16 @@ end
 
 %EmaxF = Step_19a(t, sum(dl), sum(ds));
 if (E > EmaxF)
-    disp('19: Limitting the maximum value of the field strength.')
+    if(debug==1)
+        disp('19: Limitting the maximum value of the field strength.')
+    end
     E = EmaxF;
     
 end
 
 
 if (debug==1)
-    fprintf(fid_log,['Resulting field strength for Ptx = 1kW (dBuV/m); ; ;' floatformat],E);
+    fprintf(fid_log,['Resulting field strength for Ptx = 1kW (dBuV/m), , ,' '%.8f,\n'],E);
     
 end
 
@@ -835,8 +797,8 @@ L = Step_20a(f, E);
 E = E + 10*log10(PTx);
 
 if (debug==1)
-    fprintf(fid_log,['Resulting field strength for given PTx (dBuV/m); ; ;' floatformat],E);
-    fprintf(fid_log,['Resulting basic transmission loss (dB); ง17 (40);20;' floatformat],L);
+    fprintf(fid_log,['Resulting field strength for given PTx (dBuV/m), , ,' '%.8f,\n'],E);
+    fprintf(fid_log,['Resulting basic transmission loss (dB), ยง17 (40),20,' '%.8f,\n'],L);
     if(inside_file)
         try
             fclose(fid_log);
@@ -1132,7 +1094,7 @@ for l=(tinf == tsup)+1:2
     % Step 10: If the required percentage time does not coincide with the
     % lower nominal percentage time, repeat Steps 7 to 9 for the higher
     % nominal percentage time and interpolate the two field strengths using
-    % the method given in Annex 5, ง 7.
+    % the method given in Annex 5, ยง 7.
 end%end for (percentage)
 
 % Sec 7: Interpolation of field strength as a function of percentage time
@@ -1360,7 +1322,7 @@ return% function
         % Esup : field-strength value for hsup at the required distance.
     % The field strength resulting from extrapolation for h1 > 1 200 m 
     % should be limited if necessary such that it does not exceed the 
-    % maximum defined in ง 2.
+    % maximum defined in ยง 2.
     % This Recommendation is not valid for h1 > 3 000 m.
     
 %%   
@@ -1373,7 +1335,7 @@ function E = step814_815(tabulatedValues,h1,dinf,dsup,d)
 % Step 8.1.5: If the required distance does not coincide with the
 % lower nominal distance, repeat Step 8.1.4 for the higher nominal
 % distance and interpolate the two field strengths for distance
-% using the method given in Annex 5, ง 5.
+% using the method given in Annex 5, ยง 5.
 %
 % function E = step814_815(tabulatedValues,h1,dinf,dsup)
 % if only step 8.1.4 is needed pass the same value for dinf and dsup. 
@@ -1415,8 +1377,8 @@ return
 function E = step82(tabulatedValues,h1,dinf,dsup,d,path,fnom,Emaxvalue,t)
 % Step 8.2: For a transmitting/base antenna height h1 less than 10 m
 % determine the field strength for the required height and distance
-% using the method given in Annex 5, ง 4.2. If h1 is less than zero,
-% the method given in Annex 5, ง 4.3 should also be used.
+% using the method given in Annex 5, ยง 4.2. If h1 is less than zero,
+% the method given in Annex 5, ยง 4.3 should also be used.
 
 % function E = step82(tabulatedValues,h1,dinf,dsup,d,path,fnom,Emaxvalue,t)
 %
@@ -1855,7 +1817,7 @@ function [e, nu] = Step_12a(f,tca)
 % Step 12: If information on the terrain clearance angle at a
 % receiving/mobile antenna adjacent to land is available, correct the field
 % strength for terrain clearance angle at the receiver/mobile using the
-% method given in Annex 5, ง 11 of ITU-R P.1546-6.
+% method given in Annex 5, ยง 11 of ITU-R P.1546-6.
 % Input parameters
 % f - frequency (MHz)
 % tca - terrain clearance angle (deg) is the elevation angle of the line
@@ -1922,7 +1884,7 @@ return
 function [e,thetaS] = Step_13a(d,f,t,eff1,eff2)
 % [e,thetaS] = Step_13a(d,f,t,eff1,eff2)
 % Step 13: Calculate the estimated field strength due to tropospheric 
-% scattering using the method given in Annex 5 ง 13 of ITU-R P.1546-6 and, 
+% scattering using the method given in Annex 5 ยง 13 of ITU-R P.1546-6 and, 
 % if necessary, limit the final predicted field strength accordingly.
 % Input variables
 % d - path length (km)
@@ -1955,7 +1917,7 @@ return
 function Correction = Step_15a(ha, R1, f)
 % Step 15: If there is clutter around the transmitting/base terninal, even
 % if at a lower height above ground than the antenna, correctg for its
-% effect using method given in Annex 5, ง 10 of ITU-R P.1546-6.
+% effect using method given in Annex 5, ยง 10 of ITU-R P.1546-6.
 %
 % This correction does not apply for an open/uncluttered transmitter. 
 % The correction should be used in all other cases, including when the antenna 

@@ -1,6 +1,6 @@
 function h = plotTeff1(ax,d,h,hT,teff1)
 % Plot the  line that clears all obstractions defined by terrain clearance
-% angle as in ITU-R P.1546-5 ง4.3a)
+% angle as in ITU-R P.1546-5 ยง4.3a)
 % h = plotTeff1(ax,d,h,hT,teff1)
 % where
 % d - vector of distances (km) measured from the transmitter 
