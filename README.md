@@ -1,4 +1,4 @@
-﻿# MATLAB/Octave Implementation of Recommendation ITU-R P.1546-6
+# MATLAB/Octave Implementation of Recommendation ITU-R P.1546
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6206015.svg)](https://doi.org/10.5281/zenodo.6206015)
 
