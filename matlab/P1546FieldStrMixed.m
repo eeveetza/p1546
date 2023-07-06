@@ -1,11 +1,12 @@
 function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,varargin)
-% P1546FieldStrMixed: Recommendation ITU-R P.1546-6  
+% P1546FieldStrMixed: Recommendation ITU-R P.1546-7
 %
 % [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,varargin)
 %
 % where:    Units,  Definition                             Limits
-% f:        MHz     Required frequency                     30 MHz - 4000 MHz
+% f:        MHz     Required frequency                     30 MHz - 6000 MHz
 % t:        %       Required percentage time               1% - 50 %
+%                                                          (approximation up to 99%)
 % heff:     m       Effective height of the
 %                   transmitting/base antenna, height over
 %                   the average level of the ground between
@@ -13,11 +14,11 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 %                   transmitting/base antenna in the
 %                   direction of the receiving/mobile antenna.
 % h2:       m       Receiving/mobile antenna height above ground
-% R2:       m       Representative clutter height around receiver 
-%                   Typical values: 
+% R2:       m       Representative clutter height around receiver
+%                   Typical values:
 %                   R2=10 for area='Rural' or 'Suburban' or 'Sea'
 %                   R2=15 for area='Urban'
-%                   R2=20 for area='Dense Urban'                   
+%                   R2=20 for area='Dense Urban'
 % area:     string  Area around the receiver               'Rural', 'Urban',
 %                                                          'Dense Urban'
 %                                                          'Sea'
@@ -27,7 +28,7 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 % path_c:   string  Cell of strings defining the path        'Land', 'Sea',
 %                   zone for each given path length in d_v   'Warm', 'Cold'
 %                   starting from transmitter/base terminal
-% pathinfo: 0/1     0 - no terrain profile information available, 
+% pathinfo: 0/1     0 - no terrain profile information available,
 %                   1 - terrain information available
 % q:        %       Location variability (default 50%)      1% - 99%
 % wa:       m       the width of the square area over which the variability applies (m)
@@ -56,30 +57,32 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 %                   as calculated in Section 11, noting that
 %                   this is the elevation angle relative to
 %                   the local horizontal
-% debug:    0/1     Set to 1 if the log files are to be written, 
+% debug:    0/1     Set to 1 if the log files are to be written,
 %                   otherwise set to default 0
 % fidlog:           if debug == 1, a file identifier of the log file can be
-%                   provided, if not, the default file with a file 
+%                   provided, if not, the default file with a file
 %                   containin a timestamp will be created
+% tcorr:    0/1     Set to 1 if additional correction to troposcatter tl is
+%                   to be applied for t>50% (for testing purposes only)
 %
 % Output variables:
 %
 % E:        dBuV/m  Electric field strength
 %
-% L:        dB      Path loss
+% L:        dB      Basic transmission loss loss
 %
 %
 % How to use:
-% 
+%
 % 1) by invoking only the first nine required input arguments:
-% 
+%
 %   [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo);
 %
 % 2) by invoking optional arguments in addition to the first nine required arguments
 %  using Name-Value Pair Arguments. Name is the argument name and Value is the
 %  corresponding value. Name must appear inside quotes. You can specify
 %  several name and value pair arguments in any order as
-%  Name1,Value1,...,NameN,ValueN. 
+%  Name1,Value1,...,NameN,ValueN.
 %
 %  [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo, ...
 %                              'q', 50, 'wa', 27, 'Ptx', 1, 'ha', 100);
@@ -90,10 +93,10 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 %   [E, L] = P1546FieldStrMixed(2700,50,1600,1.5,10,'Suburban',20,'Land',1);
 %
 %   [E, L] = P1546FieldStrMixed(2700,50,1600,1.5,10,'Suburban',20,'Land',1, 'q', 50, 'wa', 27, 'Ptx', 1, 'ha', 100);
-% 
-% Numbers refer to Rec. ITU-R P.1546-6
 %
-% This function implements ITU-R P.1546-6 recommendation,
+% Numbers refer to Rec. ITU-R P.1546-7
+%
+% This function implements ITU-R P.1546-7 recommendation,
 % describing a method for point-to-area radio propagation predictions for
 % terrestrial services in the frequency range 30 MHz to 4000 MHz. It is
 % intended for use on tropospheric radio circuits over land paths, sea paths,
@@ -117,25 +120,26 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 
 % Rev   Date        Author                          Description
 %-------------------------------------------------------------------------------
-% v16   12JUL21     Ivica Stevanovic, OFCOM         Simplified handling of optional input arguments and 
+% v17   05JUL23     Ivica Stevanovic, OFCOM         Align the code with Rec. ITU-R P.1546-7
+% v16   12JUL21     Ivica Stevanovic, OFCOM         Simplified handling of optional input arguments and
 %                                                   renaming subfolder "src" into "private" which is automatically in the MATLAB search path
-%                                                   (as suggested by K. Konstantinou, Ofcom UK)   
+%                                                   (as suggested by K. Konstantinou, Ofcom UK)
 %                                                   and minor editorial correction (suggested by A. Taylor, UK)
 % v15   20OCT19     Ivica Stevanovic, OFCOM         Aligned with ITU-R P.1546-6
 %                                                   Corrected a bug in h1Calc (Reported by M. Friedrich, Germany)
 % v14   11APR19     Ivica Stevanovic, OFCOM         Steps 1-16 use d = 1 km for 0.04 < d < 1 km
-%                                                   introduced caveat in smooth_earth_heights when only two points exist in the profile                                                   
+%                                                   introduced caveat in smooth_earth_heights when only two points exist in the profile
 % v13   01AUG17     Ivica Stevanovic, OFCOM         introduced sea type in the log files
 % v12   21DEC16     Ivica Stevanovic, OFCOM         corrected typo in eq. (26) of Step_11
 % v11   19DEC16     Ivica Stevanovic, OFCOM         corrected bug in Dh1 computation in function step82 for sea path;
-% v10   25AUG16     Ivica Stevanovic, OFCOM         corrected compatibility issue with Matlab 2016 
+% v10   25AUG16     Ivica Stevanovic, OFCOM         corrected compatibility issue with Matlab 2016
 %                                                   occuring in Step_17a when PTx = [];
 % v9    13MAY16     Ivica Stevanovic, OFCOM         correction in h1Calc,
 %                                                   pathinfo introduced
 % v8    05APR16     Ivica Stevanovic, OFCOM         printing format for external log
 %                                                   files changed/compatibility with Octave
 % v7    28APR15     Ivica Stevanovic, OFCOM         fidlog provided for
-%                   Michael Rohner,   LS Telecom    external log file name             
+%                   Michael Rohner,   LS Telecom    external log file name
 % v6    08OCT14     Ivica Stevanovic, OFCOM         Log file printed out if
 %                                                   debug == 1
 % v5    11DEC13     Ivica Stevanovic, OFCOM         Various bugs corrected
@@ -147,26 +151,26 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 %                                                   Included functions that
 %                                                   correspond to P.1546-5
 %                                                   Draft revision 2013
-% v1    08AUG13     Ivica Stevanovic, OFCOM         Initial Version* 
+% v1    08AUG13     Ivica Stevanovic, OFCOM         Initial Version*
 %
 % *Based on and extended from Jef Statham's ITU-R p.1546 calculator (2009)
 %  http://www.mathworks.ch/matlabcentral/fileexchange/25099-itu-r-p-1546-calculator
 %  Copyright (c) 2009, Jef Statham
 %  Copyright (c) 2013-19, Ivica Stevanovic
 %  All rights reserved.
-% 
-
-% 
 %
-% MATLAB Version 8.3.0.532 (R2014a) used in development of this code
-%% 
-% The Software is provided "AS IS" WITH NO WARRANTIES, EXPRESS OR IMPLIED, 
-% INCLUDING BUT NOT LIMITED TO, THE WARRANTIES OF MERCHANTABILITY, FITNESS 
-% FOR A PARTICULAR PURPOSE AND NON-INFRINGMENT OF INTELLECTUAL PROPERTY RIGHTS 
-% 
-% Neither the Software Copyright Holder (or its affiliates) nor the ITU 
+
+%
+%
+% MATLAB Version 8.3.0.532 (R2022a) used in development of this code
+%%
+% The Software is provided "AS IS" WITH NO WARRANTIES, EXPRESS OR IMPLIED,
+% INCLUDING BUT NOT LIMITED TO, THE WARRANTIES OF MERCHANTABILITY, FITNESS
+% FOR A PARTICULAR PURPOSE AND NON-INFRINGMENT OF INTELLECTUAL PROPERTY RIGHTS
+%
+% Neither the Software Copyright Holder (or its affiliates) nor the ITU
 % shall be held liable in any event for any damages whatsoever
-% (including, without limitation, damages for loss of profits, business 
+% (including, without limitation, damages for loss of profits, business
 % interruption, loss of information, or any other pecuniary loss)
 % arising out of or related to the use of or inability to use the Software.
 %
@@ -177,8 +181,8 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 
 %% Read the input arguments and check them
 
-if nargin <9 
-    fclose all;
+if nargin <9
+     
     error('P1546FieldStrMixed: function requires at least 9 input parameters.');
 end
 %
@@ -186,10 +190,10 @@ end
 % Checking passed parameter to the defined limits
 
 %if limit(f,30,3000,'f')
-    %return
+%return
 %end
 
-if limit(t,1,50,'t')
+if limit(t,1,99,'t')
     return
 end
 
@@ -210,7 +214,7 @@ NN=length(d_v);
 if (iscell(path_c))
     % the number of elements in d and path need to be the same
     if(length(path_c) ~= NN)
-        fclose all;
+         
         error('The number of elements in the array ''d'' and cell ''path'' must be the same.')
     end
 end
@@ -232,6 +236,7 @@ iP.addParameter('eff1',[])
 iP.addParameter('eff2',[])
 iP.addParameter('debug',0)
 iP.addParameter('fid_log',[])
+iP.addParameter('tcorr',0)
 iP.parse(varargin{:});
 
 % Unpack from input parser
@@ -248,8 +253,9 @@ wa = iP.Results.wa;
 PTx = iP.Results.PTx;
 debug = iP.Results.debug;
 fid_log = iP.Results.fid_log;
+tcorr = iP.Results.tcorr;
 
-        
+
 % handle number fid_log is reserved here for writing the files
 % if fid_log is already open outside of this function, the file needs to be
 % empty (nothing written), otherwise it will be closed and opened again
@@ -307,7 +313,7 @@ figure_rec = [  50,   1,  100   ,1;
 if (NN > 1) % mixed paths
     path='Land';
 else % single path zone, Land or [Cold or Warm] Sea
-    
+
     if iscell(path_c) % in case path_c is in cell form
         path=path_c{1};
     else % in case path_c is a string
@@ -332,18 +338,18 @@ if h1 > 3000
     warning('h1 > 3000 m. Setting h1 = 3000 m');
 end
 if isnan(h1)
-    fclose all;
+     
     error('h1 is nan');
-    
+
 end
 if isempty(h1)
-    fclose all;
+     
     error('h1 is empty');
 end
 
 if (pathinfo == 1 && q ~= 50)
     if (isnan(wa) || isempty(wa) || wa <= 0)
-        fclose all;
+         
         error(' ''wa'' needs to be defined when path is known (pathinfo = 1)');
     end
 end
@@ -358,7 +364,7 @@ iswarm = false;
 iscold = false;
 
 if (NN>1)
-    
+
     for ii=1:NN
         if (~isempty( strfind(lower(path_c{ii}),'warm')) )
             iswarm=true;
@@ -367,7 +373,7 @@ if (NN>1)
             iscold=true;
         end
     end
-    
+
     if (iswarm && iscold)
         for ii=1:NN
             if (~isempty( strfind(lower(path_c{ii}),'cold')) )
@@ -396,13 +402,16 @@ end
 %   percentages are 1 and 10, respectively;
 % - wanted time percentage > 10 and < 50, the lower and higher nominal
 %   percentages are 10 and 50, respectively.
+% - wanted time percentage > 50 and < 99, determine values for 50% time and
+%   (100-t)% time and the approximation given in equation (16b) can be
+%   applied
 % If the required percentage of time is equal to 1% or 10% or 50%, this
 % value should be regarded as the lower nominal percentage time and the
 % interpolation process of Step 10 is not required.
 
 %        done in start of step6_10()
 
-% Step 3: For any wanted frequency (in the range 30 to 3 000 MHz) determine
+% Step 3: For any wanted frequency (in the range 30 to 6 000 MHz) determine
 % two nominal frequencies as follows:
 % - where the wanted frequency < 600 MHz, the lower and higher nominal
 %   frequencies are 100 and 600 MHz, respectively;
@@ -454,7 +463,7 @@ for ii=1:NN %
         ds=[ds d_v(ii)];
         path_sea_str = 'Warm';
     else
-        fclose all;
+         
         error('Wrong value in the variable ''path''. ')
     end
 end
@@ -516,7 +525,7 @@ end
 % 2 for the case of mixed path
 
 EmaxF = Step_19a(t,sum(dl),sum(ds));
- 
+
 % In case, the slope path correction is necessary for the calculation of
 % Emax
 
@@ -525,11 +534,11 @@ if (~isempty(ha) && ~isempty(h2))
     % disp('16: Slope-path correction.');
     if (isempty(htter) && isempty(hrter))
         EmaxF = EmaxF + Step_16a(ha,h2,d);
-        
+
     else
-       
+
         EmaxF = EmaxF + Step_16a(ha,h2,d, htter,hrter);
-           
+
     end
 end
 
@@ -539,18 +548,18 @@ end
 
 
 for ii=1:NN
-    
-     if iscell(path_c) % in case path_c is in cell form
+
+    if iscell(path_c) % in case path_c is in cell form
         path=path_c{ii};
     else % in case path_c is a string
         path=path_c;
     end
-    
+
     if(debug==1)
         disp(['5: Following Steps 6 --> 10 for propagation path ' num2str(ii) ' of type: ' path])
     end
     % Step 5: For each propagation type follow Steps 6 to 10.
-  
+
     if strcmp(path,'Warm') || strcmp(path,'Cold') || strcmp(path,'Sea')
         generalPath = 'Sea';
         idx = figure_rec(:,2)>1;
@@ -560,31 +569,31 @@ for ii=1:NN
         idx = (figure_rec(:,2)==1);
         figure = figure_rec(idx,:);
     end
-    
+
     Epath = 0;
     if (d >= 1)
         Epath = step6_10(figure,h1,dinf,dsup,d,path,f,EmaxF,t);
     else
         Epath = step6_10(figure,h1,dinf,dsup,1,path,f,EmaxF,t);
     end
-    
+
     if strcmp(path,'Land')
         El=[El Epath];
-        
+
     elseif strcmp(path,'Sea')
         Es=[Es Epath];
-        
+
     elseif strcmp(path,'Cold')
         Es=[Es Epath];
-        
+
     elseif strcmp(path,'Warm')
         Es=[Es Epath];
-        
+
     else
-        fclose all;
+         
         error('Wrong value in the variable ''path''. ')
     end
-    
+
 end
 
 
@@ -628,12 +637,20 @@ if(~(isempty(eff1)) && ~(isempty(eff2)))
     end
     Ets = 0;
     theta_s = 0;
-    if (d >= 1)
-        [Ets,theta_s] = Step_13a(d,f,t,eff1,eff2);
+    if (tcorr == 0)
+        if (d >= 1)
+            [Ets,theta_s] = Step_13a(d,f,t,eff1,eff2);
+        else
+            [Ets,theta_s] = Step_13a(1,f,t,eff1,eff2);
+        end
     else
-        [Ets,theta_s] = Step_13a(1,f,t,eff1,eff2);
+        if (d >= 1)
+            [Ets,theta_s] = Step_13b(d,f,t,eff1,eff2);
+        else
+            [Ets,theta_s] = Step_13b(1,f,t,eff1,eff2);
+        end
     end
-        
+
     E = max(E, Ets);
     if (debug == 1)
         fprintf(fid_log,['Path scattering theta_s (deg),§13 (35),13,' floatformat], theta_s);
@@ -648,26 +665,26 @@ if ((isempty(R2)) || isempty(h2) || isempty(area))
     warning('R2, h2, and area are not defined. The following default values used:')
     warning('Rx in Rural area: R2 = 10 m, h2 = R2');
 end
-    if(debug==1)
-        disp('14: Receiving/mobile antenna height correction.')
-    end
-    if iscell(path_c) % in case path_c is in cell form
-        path=path_c{end};
-    else % in case path_c is a string
-        path=path_c;
-    end
-    Correction = 0;
-    R2p = 0;
-    if (d >= 1)
-        [Correction, R2p] = Step_14a(h1,d,R2,h2,f,area);
-    else
-        [Correction, R2p] = Step_14a(h1,1,R2,h2,f,area);
-    end
-    E = E + Correction;
-    if (debug == 1)
-        fprintf(fid_log,['Rx repr. clutter height R2'' (m),§9 (27),14,' floatformat], R2p);
-        fprintf(fid_log,['Rx antenna height correction (dB),§9 (28-29),14,' floatformat], Correction);
-    end
+if(debug==1)
+    disp('14: Receiving/mobile antenna height correction.')
+end
+if iscell(path_c) % in case path_c is in cell form
+    path=path_c{end};
+else % in case path_c is a string
+    path=path_c;
+end
+Correction = 0;
+R2p = 0;
+if (d >= 1)
+    [Correction, R2p] = Step_14a(h1,d,R2,h2,f,area);
+else
+    [Correction, R2p] = Step_14a(h1,1,R2,h2,f,area);
+end
+E = E + Correction;
+if (debug == 1)
+    fprintf(fid_log,['Rx repr. clutter height R2'' (m),§9 (27),14,' floatformat], R2p);
+    fprintf(fid_log,['Rx antenna height correction (dB),§9 (28-29),14,' floatformat], Correction);
+end
 %end
 
 % Step 15: If there is clutter around the transmitting/base terminal, even
@@ -680,7 +697,7 @@ if(~isempty(ha) && ~isempty(R1))
     E = E + Step_15a(ha,R1,f);
     if (debug == 1)
         fprintf(fid_log,['Tx clutter correction (dB),§10 (30),15,' floatformat], Step_15a(ha,R1,f));
-    end    
+    end
 end
 
 % Step 16: Apply the slope-path correction given in annex 5, Sec. 14
@@ -689,34 +706,34 @@ if (~isempty(ha) && ~isempty(h2))
         disp('16: Slope-path correction.');
     end
     if (isempty(htter) && isempty(hrter))
-        
+
         if (d >= 1)
-            Correction = Step_16a(ha,h2,d); 
+            Correction = Step_16a(ha,h2,d);
         else
-            Correction = Step_16a(ha,h2,1); 
+            Correction = Step_16a(ha,h2,1);
         end
         E = E + Correction;
-        
+
         if (debug == 1)
-            
+
             fprintf(fid_log,['Rx slope-path correction (dB),§14 (37),16,' floatformat],Correction);
-        end            
-        
+        end
+
     else
-        
+
         if (d >= 1)
             Correction = Step_16a(ha,h2,d, htter,hrter);
-        else 
+        else
             Correction = Step_16a(ha,h2,1, htter,hrter);
         end
-            E = E + Correction;
-        
-        
+        E = E + Correction;
+
+
         if (debug == 1)
             fprintf(fid_log,['Rx slope-path correction (dB),§14 (37),16,' floatformat],Correction);
-            
+
             %fprintf(1,'Correction = %.2f\n', Step_16a(ha,h2,d, htter,hrter)) % corrected 5.4.16, IS;
-        end   
+        end
     end
 end
 
@@ -741,7 +758,7 @@ if (debug == 1)
         Edebug = [];
         fprintf(fid_log,'Field strength for d < 1 km (dB),§15 (38),17,,\n');
     end
-    
+
 end
 
 % Step 18: Correct the field strength over the land area for the required percentage of
@@ -765,11 +782,11 @@ if (debug == 1)
     else
         fprintf(fid_log,['Field strength for q <> 50 %%,§12 (33),18,' '%.8f,\n'],Edebug);
     end
-end   
+end
 
 % Step 19: If necessary, limit the resulting field strength to the maximum
 % given in Annex 5, Sec. 2. If a mixed path calculation has been made for a
-% percentage time less than 50% use the method given by (42) 
+% percentage time less than 50% use the method given by (42)
 
 %EmaxF = Step_19a(t, sum(dl), sum(ds));
 if (E > EmaxF)
@@ -777,13 +794,13 @@ if (E > EmaxF)
         disp('19: Limitting the maximum value of the field strength.')
     end
     E = EmaxF;
-    
+
 end
 
 
 if (debug==1)
     fprintf(fid_log,['Resulting field strength for Ptx = 1kW (dBuV/m), , ,' '%.8f,\n'],E);
-    
+
 end
 
 % Step 20: If required, convert field strength to eqivalent basic
@@ -809,6 +826,7 @@ end
 
 
 return
+end
 
 
 
@@ -824,20 +842,21 @@ function bool = limit(var, low, hi,name)
 % v1    13AUG09     Jef Statham, Industry Canada    Original version
 
 if ((var < low) || (var > hi))
-    fclose all;
+     
     error(strcat(name,' = ',num2str(var),' is outside the limits.'));
     bool = true;
     return
 end
 bool = false;
+end
 
 %%
 function h1 = h1Calc(d,heff,ha,hb,path,flag)
 % Input Variables
 % d     -   path length (km)
 % heff  -   effective height of the transmitting/base antenna, defined as
-%           its height over the average level of the ground between 
-%           distances of 3 km and 15 km from the transmitting/base antenna 
+%           its height over the average level of the ground between
+%           distances of 3 km and 15 km from the transmitting/base antenna
 %           in the direction of the receiving/mobile antenna (m)
 % ha    -   transmitting/base antenna height above ground (height of the
 %           mast) used when terrain information is not available (m)
@@ -848,9 +867,9 @@ function h1 = h1Calc(d,heff,ha,hb,path,flag)
 % flag  -   = 1 (terrain information available), 0 (not available)
 %
 % Sec: 3 Determination of transmitting/base antenna height, h1
-% 
+%
 % This function will return a NaN value if missing inputs according to ITU-R
-% p.1546-6
+% p.1546-7
 
 % Rev   Date        Author                          Description
 %-------------------------------------------------------------------------------
@@ -884,7 +903,7 @@ if strcmp(lower(path),'land')
                 end
             end
         else % terrain info available
-            
+
             if ~isempty(hb)
                 %h1 = heff;                     %equ'n (6) if d < 15 km heff = hb
                 h1 = hb;                        %equ'n (6) if d < 15 km h1 = hb
@@ -895,7 +914,7 @@ if strcmp(lower(path),'land')
                 return
             end
         end
-        
+
     else  % d>15 (Section 3.2)
         h1 = heff;                          %equ'n (7)
         return
@@ -912,14 +931,15 @@ if strcmp(lower(path), 'sea') % Section 3.3
 end
 h1 = NaN;
 return
+end
 
 %%
 function [dinf, dsup] = FindDNominals(d)
 % Rev   Date        Author                          Description
 %-------------------------------------------------------------------------------
 % v2    08JUN13     Ivica Stevanovic, OFCOM         Initial version
-% v1    13AUG09     Jef Statham, Industry Canada    Original version    
-    
+% v1    13AUG09     Jef Statham, Industry Canada    Original version
+
 distance = [  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13,...
     14, 15, 16, 17, 18, 19, 20, 25, 30, 35, 40, 45, 50,...
     55, 60, 65, 70, 75, 80, 85, 90, 95,100,110,120,130,...
@@ -929,6 +949,7 @@ distance = [  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13,...
 %if value is not found dsup = 'nothing';
 [dinf, dsup] = searchclosest(distance,d);
 return
+end
 %%
 function [i,cv] = searchclosest(x,v)
 %%
@@ -989,12 +1010,13 @@ i = i(1);
 % % % Email : drkhanmurtaza@gmail.com
 % % % --------------------------------
 return
+end
 %End tidbit
 
 %%
 function Emax = Step_19a(t, dland, dsea)
 % E = Step_19a(t, dland, dsea)
-%                               
+%
 %
 % Step 19: If necessary, limit the resulting field strength to the maximum
 % given in Annex 5, Paragraph 2. If a mixed path calculation has been made
@@ -1010,9 +1032,9 @@ function Emax = Step_19a(t, dland, dsea)
 %--------------------------------------------------------------------------
 % v1    12AUG13     Ivica Stevanovic, OFCOM         Initial version
 
-if (t < 1 || t > 50)
-    fclose all;
-    error('The percentage time out of band [1%, 50%].')
+if (t < 1 || t > 99)
+     
+    error('The percentage time out of band [1%, 99%].')
 end
 
 dtotal=dland+dsea;
@@ -1024,7 +1046,8 @@ Ese=2.38*(1-exp(-dtotal/8.94))*log10(50/t); %(3)
 
 Emax=Efs+dsea*Ese/dtotal;  %(42)
 
-return 
+return
+end
 
 %%
 function E = step6_10(figure,h1,dinf,dsup,d,path,f,Emaxvalue,t)
@@ -1043,31 +1066,39 @@ function E = step6_10(figure,h1,dinf,dsup,d,path,f,Emaxvalue,t)
 %
 % Rev   Date        Author                          Description
 %-------------------------------------------------------------------------------
+% v3    05JUL23     Ivica Stevanovic, OFCOM         ITU-R P.1546-7
 % v2    08JUN13     Ivica Stevanovic, OFCOM         Initial version
 % v1    13AUG09     Jef Statham, Industry Canada    Original version
 
 percentage = [1 10 50];
+flag71 = false;
+
+if t>50  % prepare the field for the approximation (Section 7.1)
+    t = 100-t;
+    flag71 = true;
+end
 
 [tinf, tsup] = searchclosest(percentage,t);
 
 % Step 6: For the lower nominal percentage time follow Steps 7 to 10.
 Ep = zeros(1,2);
+E50 = 0;
 argl = [tinf tsup];
 for l=(tinf == tsup)+1:2
     % slight modification due to figure limits. When any sea path is
     % selected all figure tables for warm and cold are kept in the figure
-    % matrix. This modification sorts out when a sea path Warm figure is 
+    % matrix. This modification sorts out when a sea path Warm figure is
     % needed otherwise it will default to a Cold sea path.
-    % ex. [1 2 600 x] does not exist nor do any t = 50 curves for warm or 
+    % ex. [1 2 600 x] does not exist nor do any t = 50 curves for warm or
     % cold sea specific tables.
     if ((argl(l) == 10)||(argl(l) == 1)) && strcmp(path,'Warm')
-        idx = figure(:,1)==argl(l)&(figure(:,2)== 4);
+        idx = figure(:,1)==argl(l)&&(figure(:,2)== 4);
     else
         idx = figure(:,1)==argl(l);
     end
-    
+
     figureStep6 = figure(idx,:);
-    
+
     % Step 7-9: For the lower nominal frequency follow Steps 8 and 9.
     % Sec 6: Interpolation and extrapolation of field strength as a
     % function of frequency
@@ -1078,7 +1109,7 @@ for l=(tinf == tsup)+1:2
     else
         generalPath = 'Land';
     end
-    
+
     if (strcmp(generalPath,'Sea')&&(f < 100)&&(d < d600))
         if (d <= df)
             Ep(l) = Step_19a(t,0,d);      %equ'n (15a)
@@ -1097,29 +1128,87 @@ for l=(tinf == tsup)+1:2
     % the method given in Annex 5, § 7.
 end%end for (percentage)
 
+
 % Sec 7: Interpolation of field strength as a function of percentage time
 
 if tinf ~= tsup
     Qsup = Qi(tsup/100);
     Qinf = Qi(tinf/100);
     Qt = Qi(t/100);
-    E = Ep(2)*(Qinf-Qt)/(Qinf-Qsup)+Ep(1)*(Qt-Qsup)/(Qinf-Qsup);    %equ'n (16)
-    return
+    E = Ep(2)*(Qinf-Qt)/(Qinf-Qsup)+Ep(1)*(Qt-Qsup)/(Qinf-Qsup);    %equ'n (16a)
+
 else
     E = Ep(l);
-    return
+
 end
+
+
+
+if (flag71)
+    l = 2;
+    argl = [50 50];
+    % Compute the E(50) using the same steps as above for tinf and tsup
+    % slight modification due to figure limits. When any sea path is
+    % selected all figure tables for warm and cold are kept in the figure
+    % matrix. This modification sorts out when a sea path Warm figure is
+    % needed otherwise it will default to a Cold sea path.
+    % ex. [1 2 600 x] does not exist nor do any t = 50 curves for warm or
+    % cold sea specific tables.
+    if ((argl(l) == 10)||(argl(l) == 1)) && strcmp(path,'Warm')
+        idx = figure(:,1)==argl(l)&&(figure(:,2)== 4);
+    else
+        idx = figure(:,1)==argl(l);
+    end
+
+    figureStep6 = figure(idx,:);
+
+    % Step 7-9: For the lower nominal frequency follow Steps 8 and 9.
+    % Sec 6: Interpolation and extrapolation of field strength as a
+    % function of frequency
+    df = D06(f,h1,10);
+    d600 = D06(600, h1, 10);
+    if strcmp(path,'Warm')||strcmp(path,'Cold')||strcmp(path,'Sea')
+        generalPath = 'Sea';
+    else
+        generalPath = 'Land';
+    end
+
+    if (strcmp(generalPath,'Sea')&&(f < 100)&&(d < d600))
+        if (d <= df)
+            E50 = Step_19a(50,0,d);      %equ'n (15a)
+        else
+            Edf = Step_19a(50, 0, df);
+            [d600inf d600sup] = FindDNominals(d600);
+            Ed600 = step7_normal(figureStep6,h1,d600inf,d600sup,d600,generalPath,f,Emaxvalue,50);
+            E50 = Edf +(Ed600 - Edf)*log10(d/df)/log10(d600/df); %equ'n (15b)
+        end
+    else
+        E50 = step7_normal(figureStep6,h1,dinf,dsup,d,generalPath,f,Emaxvalue,50);
+    end
+    % Step 10: If the required percentage time does not coincide with the
+    % lower nominal percentage time, repeat Steps 7 to 9 for the higher
+    % nominal percentage time and interpolate the two field strengths using
+    % the method given in Annex 5, § 7.
+
+    % Use approximation for percentages of time in the range 50-99%
+    
+    E =  2 * E50 - E;  %Eq (16b)
+    
+end
+
+
 return
+end
 
 
 function D = D06(f,h1,h2)
 % Sec: 18 An approximation to the 0.6 Fresnel clearance path length
-% The path length which just achieves a clearance of 0.6 of the first 
-% Fresnel zone over a smooth curved Earth, for a given frequency and 
+% The path length which just achieves a clearance of 0.6 of the first
+% Fresnel zone over a smooth curved Earth, for a given frequency and
 % antenna heights h1 and h2
 % f : frequency (MHz)
 % h1, h2 : antenna heights above smooth Earth (m).
-% The value of h1 must be limited, if necessary, 
+% The value of h1 must be limited, if necessary,
 % such that it is not less than zero. Moreover, the resulting values of D06
 % must be limited, if necessary, such that it is not less than 0.001 km.
 %
@@ -1138,10 +1227,11 @@ if D < 0.001
     D = 0.001;
 end
 return
+end
 
 %%
 function E = step7_normal(figureStep6,h1,dinf,dsup,d,generalPath,f,Emaxvalue,t)
-    
+
 % E =step7_normal(figureStep6,h1,dinf,dsup,d,generalPath,f,Emax,t)
 % Sec 6: Interpolation and extrapolation of field strength as a function of
 % frequency
@@ -1173,7 +1263,7 @@ function E = step7_normal(figureStep6,h1,dinf,dsup,d,generalPath,f,Emaxvalue,t)
 
 
 exceltables = ...
-   {[78,10,20,37.5,75,150,300,600,1200,0;1,89.9759,92.1812,94.6355,97.3845,100.3181,103.1205,105.2426,106.3566,106.9;2,80.2751,83.0908,86.0014,89.2076,92.6742,96.1197,98.8577,100.2846,100.8794;3,74.1662,77.5296,80.8234,84.3504,88.1427,91.9686,95.0958,96.7306,97.3576;4,69.5184,73.3548,77.0149,80.8312,84.885,88.9934,92.4125,94.2077,94.8588;5,65.6994,69.9206,73.9248,78.0214,82.3137,86.6601,90.3203,92.2498,92.9206;6,62.4359,66.9578,71.2723,75.6407,80.1635,84.7271,88.6005,90.6489,91.337;7,59.5803,64.3322,68.9161,73.5423,78.2915,83.0633,87.1352,89.294,89.998;8,57.0412,61.9673,66.7783,71.6424,76.6127,81.5891,85.8531,88.1186,88.8382;9,54.756,59.814,64.8127,69.8903,75.0733,80.2524,84.7074,87.0797,87.8152;10,52.6796,57.8377,62.9896,68.2548,73.6382,79.0175,83.6656,86.1477,86.9;11,50.7782,56.0126,61.2886,66.7156,72.2842,77.8593,82.704,85.3015,86.0721;12,49.0255,54.3183,59.6945,65.2592,70.9957,76.7598,81.8047,84.5251,85.3164;13,47.4007,52.7385,58.1954,63.8762,69.7625,75.7062,80.9539,83.8065,84.6211;14,45.8873,51.2596,56.7816,62.5595,68.5777,74.6895,80.141,83.1361,83.9774;15,44.4715,49.8704,55.4448,61.3035,67.4365,73.7034,79.3576,82.5061,83.3782;16,43.1423,48.5613,54.1779,60.1035,66.3356,72.7438,78.5971,81.9102,82.8176;17,41.8902,47.3243,52.9746,58.9555,65.2725,71.8079,77.8546,81.3432,82.291;18,40.7074,46.1523,51.8294,57.8559,64.2452,70.894,77.1264,80.8006,81.7946;19,39.5871,45.0395,50.7377,56.8014,63.2518,70.0011,76.4098,80.2786,81.3249;20,38.5237,43.9806,49.695,55.7889,62.291,69.1285,75.7029,79.7742,80.8794;25,33.9069,39.3532,45.097,51.2676,57.9231,65.0574,72.2902,77.4302,78.9412;30,30.1811,35.5753,41.2901,47.4593,54.1611,61.4361,69.0821,75.247,77.3576;35,27.1022,32.4093,38.0527,44.1712,50.8594,58.1943,66.0991,73.1376,76.0186;40,24.5178,29.7039,35.239,41.2678,47.9017,55.2511,63.3319,71.0823,74.8588;45,22.3242,27.3561,32.7481,38.6526,45.199,52.5325,60.7465,69.0829,73.8358;50,20.4457,25.2917,30.5082,36.2563,42.6853,49.9783,58.3013,67.139,72.9206;55,18.8242,23.456,28.4679,34.0304,40.3142,47.5432,55.9575,65.2431,72.0927;60,17.4138,21.8079,26.5907,31.9423,38.0553,45.1964,53.6839,63.3818,71.337;65,16.1775,20.3164,24.8512,29.9716,35.891,42.9195,51.4583,61.5403,70.6417;70,15.0848,18.9575,23.232,28.1062,33.813,40.7044,49.2674,59.7052,69.998;75,14.1104,17.7128,21.721,26.3401,31.8196,38.5503,47.1059,57.8662,69.3988;80,13.2334,16.5674,20.3094,24.6703,29.9126,36.4612,44.9742,56.017,68.8382;85,12.4361,15.5089,18.9902,23.0948,28.0952,34.4436,42.8775,54.1554,68.3116;90,11.7041,14.5267,17.757,21.612,26.3701,32.5044,40.8233,52.2826,67.8152;95,11.0249,13.6116,16.6037,20.2192,24.7389,30.6498,38.8202,50.4029,67.3455;100,10.3885,12.7552,15.5241,18.9127,23.2014,28.8839,36.8766,48.5226,66.9;110,9.2115,11.1888,13.56,16.5389,20.3971,25.6248,33.1954,44.7914,66.0721;120,8.121,9.775,11.8136,14.4442,17.9235,22.7202,29.8173,41.1534,65.3164;130,7.0818,8.4718,10.2372,12.578,15.733,20.1389,26.7509,37.666,64.6211;140,6.0704,7.2464,8.7898,10.8924,13.7749,17.8372,23.9815,34.3703,63.9774;150,5.0717,6.0747,7.4382,9.3465,12.0024,15.7687,21.4807,31.2885,63.3782;160,4.0764,4.9392,6.157,7.9069,10.3756,13.8901,19.2138,28.4266,62.8176;170,3.0791,3.8278,4.9273,6.5481,8.8623,12.1644,17.1458,25.7785,62.291;180,2.0772,2.7325,3.7355,5.2507,7.4373,10.5609,15.2444,23.3302,61.7946;190,1.0699,1.6483,2.5723,4.0007,6.0818,9.0554,13.4815,21.0635,61.3249;200,0.0578,0.5723,1.4312,2.7879,4.7814,7.629,11.8338,18.9592,60.8794;225,-2.4856,-2.0889,-1.3489,-0.1229,1.7093,4.3216,8.101,14.2872,59.8564;250,-5.0264,-4.7076,-4.0446,-2.9035,-1.1768,1.2793,4.7672,10.2631,58.9412;275,-7.539,-7.2732,-6.6619,-5.5778,-3.922,-1.5725,1.7131,6.7063,58.1133;300,-10.0034,-9.7747,-9.1991,-8.1543,-6.5478,-4.2726,-1.1303,3.4955,57.3576;325,-12.4069,-12.2047,-11.6545,-10.6375,-9.0661,-6.844,-3.8052,0.5494,56.6623;350,-14.7435,-14.5606,-14.0287,-13.0321,-11.4862,-9.303,-6.3403,-2.1885,56.0186;375,-17.0125,-16.844,-16.3258,-15.3442,-13.8173,-11.6631,-8.7573,-4.7594,55.4194;400,-19.2175,-19.0598,-18.5518,-17.5816,-16.0691,-13.9369,-11.0746,-7.1948,54.8588;425,-21.3647,-21.2152,-20.7152,-19.7537,-18.2523,-16.137,-13.3083,-9.5205,54.3322;450,-23.4623,-23.3193,-22.8254,-21.8708,-20.378,-18.276,-15.4736,-11.7583,53.8358;475,-25.5199,-25.3819,-24.8928,-23.9436,-22.4577,-20.3662,-17.5847,-13.9273,53.3661;500,-27.5473,-27.4133,-26.9281,-25.9832,-24.5028,-22.4197,-19.655,-16.0441,52.9206;525,-29.5545,-29.4237,-28.9417,-28.0003,-26.5243,-24.448,-21.6969,-18.1239,52.4968;550,-31.5512,-31.423,-30.9435,-30.005,-28.5327,-26.462,-23.722,-20.1801,52.0927;575,-33.5464,-33.4204,-32.943,-32.0069,-30.5376,-28.4715,-25.7407,-22.2245,51.7066;600,-35.5483,-35.424,-34.9484,-34.0142,-32.5474,-30.4851,-27.762,-24.2673,51.337;625,-37.5636,-37.4409,-36.9667,-36.0342,-34.5695,-32.5104,-29.7938,-26.317,50.9824;650,-39.5981,-39.4765,-39.0036,-38.0725,-36.6095,-34.5532,-31.842,-28.3805,50.6417;675,-41.6555,-41.5349,-41.0631,-40.1331,-38.6717,-36.6177,-33.9111,-30.4626,50.3139;700,-43.738,-43.6183,-43.1474,-42.2184,-40.7582,-38.7062,-36.0036,-32.5662,49.998;725,-45.8459,-45.727,-45.2568,-44.3287,-42.8696,-40.8193,-38.12,-34.6922,49.6932;750,-47.9774,-47.8591,-47.3896,-46.4623,-45.0042,-42.9553,-40.259,-36.8394,49.3988;775,-50.1288,-50.0111,-49.5421,-48.6155,-47.1582,-45.1106,-42.4168,-39.0044,49.114;800,-52.2942,-52.177,-51.7086,-50.7825,-49.3259,-47.2794,-44.5879,-41.1817,48.8382;825,-54.4659,-54.3492,-53.8812,-52.9555,-51.4996,-49.4541,-46.7645,-43.3639,48.5709;850,-56.6344,-56.518,-56.0504,-55.1252,-53.6698,-51.6252,-48.9373,-45.5415,48.3116;875,-58.7885,-58.6724,-58.2052,-57.2804,-55.8255,-53.7816,-51.0952,-47.7037,48.0598;900,-60.916,-60.8002,-60.3332,-59.4088,-57.9543,-55.9111,-53.2261,-49.8383,47.8152;925,-63.0036,-62.888,-62.4213,-61.4972,-60.0431,-58.0005,-55.3167,-51.9323,47.5772;950,-65.0378,-64.9225,-64.456,-63.5322,-62.0784,-60.0363,-57.3536,-53.9722,47.3455;975,-67.0053,-66.8902,-66.4239,-65.5003,-64.0469,-62.0052,-59.3234,-55.9447,47.1199;1000,-68.8933,-68.7783,-68.3123,-67.3889,-65.9357,-63.8945,-61.2136,-57.8373,46.9;],...
+    {[78,10,20,37.5,75,150,300,600,1200,0;1,89.9759,92.1812,94.6355,97.3845,100.3181,103.1205,105.2426,106.3566,106.9;2,80.2751,83.0908,86.0014,89.2076,92.6742,96.1197,98.8577,100.2846,100.8794;3,74.1662,77.5296,80.8234,84.3504,88.1427,91.9686,95.0958,96.7306,97.3576;4,69.5184,73.3548,77.0149,80.8312,84.885,88.9934,92.4125,94.2077,94.8588;5,65.6994,69.9206,73.9248,78.0214,82.3137,86.6601,90.3203,92.2498,92.9206;6,62.4359,66.9578,71.2723,75.6407,80.1635,84.7271,88.6005,90.6489,91.337;7,59.5803,64.3322,68.9161,73.5423,78.2915,83.0633,87.1352,89.294,89.998;8,57.0412,61.9673,66.7783,71.6424,76.6127,81.5891,85.8531,88.1186,88.8382;9,54.756,59.814,64.8127,69.8903,75.0733,80.2524,84.7074,87.0797,87.8152;10,52.6796,57.8377,62.9896,68.2548,73.6382,79.0175,83.6656,86.1477,86.9;11,50.7782,56.0126,61.2886,66.7156,72.2842,77.8593,82.704,85.3015,86.0721;12,49.0255,54.3183,59.6945,65.2592,70.9957,76.7598,81.8047,84.5251,85.3164;13,47.4007,52.7385,58.1954,63.8762,69.7625,75.7062,80.9539,83.8065,84.6211;14,45.8873,51.2596,56.7816,62.5595,68.5777,74.6895,80.141,83.1361,83.9774;15,44.4715,49.8704,55.4448,61.3035,67.4365,73.7034,79.3576,82.5061,83.3782;16,43.1423,48.5613,54.1779,60.1035,66.3356,72.7438,78.5971,81.9102,82.8176;17,41.8902,47.3243,52.9746,58.9555,65.2725,71.8079,77.8546,81.3432,82.291;18,40.7074,46.1523,51.8294,57.8559,64.2452,70.894,77.1264,80.8006,81.7946;19,39.5871,45.0395,50.7377,56.8014,63.2518,70.0011,76.4098,80.2786,81.3249;20,38.5237,43.9806,49.695,55.7889,62.291,69.1285,75.7029,79.7742,80.8794;25,33.9069,39.3532,45.097,51.2676,57.9231,65.0574,72.2902,77.4302,78.9412;30,30.1811,35.5753,41.2901,47.4593,54.1611,61.4361,69.0821,75.247,77.3576;35,27.1022,32.4093,38.0527,44.1712,50.8594,58.1943,66.0991,73.1376,76.0186;40,24.5178,29.7039,35.239,41.2678,47.9017,55.2511,63.3319,71.0823,74.8588;45,22.3242,27.3561,32.7481,38.6526,45.199,52.5325,60.7465,69.0829,73.8358;50,20.4457,25.2917,30.5082,36.2563,42.6853,49.9783,58.3013,67.139,72.9206;55,18.8242,23.456,28.4679,34.0304,40.3142,47.5432,55.9575,65.2431,72.0927;60,17.4138,21.8079,26.5907,31.9423,38.0553,45.1964,53.6839,63.3818,71.337;65,16.1775,20.3164,24.8512,29.9716,35.891,42.9195,51.4583,61.5403,70.6417;70,15.0848,18.9575,23.232,28.1062,33.813,40.7044,49.2674,59.7052,69.998;75,14.1104,17.7128,21.721,26.3401,31.8196,38.5503,47.1059,57.8662,69.3988;80,13.2334,16.5674,20.3094,24.6703,29.9126,36.4612,44.9742,56.017,68.8382;85,12.4361,15.5089,18.9902,23.0948,28.0952,34.4436,42.8775,54.1554,68.3116;90,11.7041,14.5267,17.757,21.612,26.3701,32.5044,40.8233,52.2826,67.8152;95,11.0249,13.6116,16.6037,20.2192,24.7389,30.6498,38.8202,50.4029,67.3455;100,10.3885,12.7552,15.5241,18.9127,23.2014,28.8839,36.8766,48.5226,66.9;110,9.2115,11.1888,13.56,16.5389,20.3971,25.6248,33.1954,44.7914,66.0721;120,8.121,9.775,11.8136,14.4442,17.9235,22.7202,29.8173,41.1534,65.3164;130,7.0818,8.4718,10.2372,12.578,15.733,20.1389,26.7509,37.666,64.6211;140,6.0704,7.2464,8.7898,10.8924,13.7749,17.8372,23.9815,34.3703,63.9774;150,5.0717,6.0747,7.4382,9.3465,12.0024,15.7687,21.4807,31.2885,63.3782;160,4.0764,4.9392,6.157,7.9069,10.3756,13.8901,19.2138,28.4266,62.8176;170,3.0791,3.8278,4.9273,6.5481,8.8623,12.1644,17.1458,25.7785,62.291;180,2.0772,2.7325,3.7355,5.2507,7.4373,10.5609,15.2444,23.3302,61.7946;190,1.0699,1.6483,2.5723,4.0007,6.0818,9.0554,13.4815,21.0635,61.3249;200,0.0578,0.5723,1.4312,2.7879,4.7814,7.629,11.8338,18.9592,60.8794;225,-2.4856,-2.0889,-1.3489,-0.1229,1.7093,4.3216,8.101,14.2872,59.8564;250,-5.0264,-4.7076,-4.0446,-2.9035,-1.1768,1.2793,4.7672,10.2631,58.9412;275,-7.539,-7.2732,-6.6619,-5.5778,-3.922,-1.5725,1.7131,6.7063,58.1133;300,-10.0034,-9.7747,-9.1991,-8.1543,-6.5478,-4.2726,-1.1303,3.4955,57.3576;325,-12.4069,-12.2047,-11.6545,-10.6375,-9.0661,-6.844,-3.8052,0.5494,56.6623;350,-14.7435,-14.5606,-14.0287,-13.0321,-11.4862,-9.303,-6.3403,-2.1885,56.0186;375,-17.0125,-16.844,-16.3258,-15.3442,-13.8173,-11.6631,-8.7573,-4.7594,55.4194;400,-19.2175,-19.0598,-18.5518,-17.5816,-16.0691,-13.9369,-11.0746,-7.1948,54.8588;425,-21.3647,-21.2152,-20.7152,-19.7537,-18.2523,-16.137,-13.3083,-9.5205,54.3322;450,-23.4623,-23.3193,-22.8254,-21.8708,-20.378,-18.276,-15.4736,-11.7583,53.8358;475,-25.5199,-25.3819,-24.8928,-23.9436,-22.4577,-20.3662,-17.5847,-13.9273,53.3661;500,-27.5473,-27.4133,-26.9281,-25.9832,-24.5028,-22.4197,-19.655,-16.0441,52.9206;525,-29.5545,-29.4237,-28.9417,-28.0003,-26.5243,-24.448,-21.6969,-18.1239,52.4968;550,-31.5512,-31.423,-30.9435,-30.005,-28.5327,-26.462,-23.722,-20.1801,52.0927;575,-33.5464,-33.4204,-32.943,-32.0069,-30.5376,-28.4715,-25.7407,-22.2245,51.7066;600,-35.5483,-35.424,-34.9484,-34.0142,-32.5474,-30.4851,-27.762,-24.2673,51.337;625,-37.5636,-37.4409,-36.9667,-36.0342,-34.5695,-32.5104,-29.7938,-26.317,50.9824;650,-39.5981,-39.4765,-39.0036,-38.0725,-36.6095,-34.5532,-31.842,-28.3805,50.6417;675,-41.6555,-41.5349,-41.0631,-40.1331,-38.6717,-36.6177,-33.9111,-30.4626,50.3139;700,-43.738,-43.6183,-43.1474,-42.2184,-40.7582,-38.7062,-36.0036,-32.5662,49.998;725,-45.8459,-45.727,-45.2568,-44.3287,-42.8696,-40.8193,-38.12,-34.6922,49.6932;750,-47.9774,-47.8591,-47.3896,-46.4623,-45.0042,-42.9553,-40.259,-36.8394,49.3988;775,-50.1288,-50.0111,-49.5421,-48.6155,-47.1582,-45.1106,-42.4168,-39.0044,49.114;800,-52.2942,-52.177,-51.7086,-50.7825,-49.3259,-47.2794,-44.5879,-41.1817,48.8382;825,-54.4659,-54.3492,-53.8812,-52.9555,-51.4996,-49.4541,-46.7645,-43.3639,48.5709;850,-56.6344,-56.518,-56.0504,-55.1252,-53.6698,-51.6252,-48.9373,-45.5415,48.3116;875,-58.7885,-58.6724,-58.2052,-57.2804,-55.8255,-53.7816,-51.0952,-47.7037,48.0598;900,-60.916,-60.8002,-60.3332,-59.4088,-57.9543,-55.9111,-53.2261,-49.8383,47.8152;925,-63.0036,-62.888,-62.4213,-61.4972,-60.0431,-58.0005,-55.3167,-51.9323,47.5772;950,-65.0378,-64.9225,-64.456,-63.5322,-62.0784,-60.0363,-57.3536,-53.9722,47.3455;975,-67.0053,-66.8902,-66.4239,-65.5003,-64.0469,-62.0052,-59.3234,-55.9447,47.1199;1000,-68.8933,-68.7783,-68.3123,-67.3889,-65.9357,-63.8945,-61.2136,-57.8373,46.9;],...
     [78,10,20,37.5,75,150,300,600,1200,0;1,89.9759,92.1812,94.6355,97.3845,100.3181,103.1205,105.2426,106.3566,106.9;2,80.2751,83.0908,86.0014,89.2076,92.6742,96.1197,98.8577,100.2846,100.8794;3,74.1662,77.5296,80.8234,84.3504,88.1427,91.9686,95.0958,96.7306,97.3576;4,69.5184,73.3548,77.0149,80.8312,84.885,88.9934,92.4125,94.2077,94.8588;5,65.6994,69.9206,73.9248,78.0214,82.3137,86.6601,90.3203,92.2498,92.9206;6,62.4359,66.9578,71.2723,75.6407,80.1635,84.7271,88.6005,90.6489,91.337;7,59.5803,64.3322,68.9161,73.5423,78.2915,83.0633,87.1352,89.294,89.998;8,57.0412,61.9673,66.7783,71.6424,76.6127,81.5891,85.8531,88.1186,88.8382;9,54.756,59.814,64.8127,69.8903,75.0733,80.2524,84.7074,87.0797,87.8152;10,52.6796,57.8377,62.9896,68.2548,73.6382,79.0175,83.6656,86.1477,86.9;11,50.7782,56.0126,61.2886,66.7156,72.2842,77.8593,82.704,85.3015,86.0721;12,49.1805,54.3636,59.7455,65.2859,70.9957,76.7598,81.8047,84.5251,85.3164;13,47.7587,52.9466,58.3666,63.9883,69.7889,75.7062,80.9539,83.8065,84.6211;14,46.4469,51.6299,57.0738,62.7592,68.6638,74.6895,80.141,83.1361,83.9774;15,45.231,50.4013,55.8571,61.5908,67.5841,73.7268,79.3576,82.5061,83.3782;16,44.0999,49.2508,54.7085,60.4768,66.5444,72.8073,78.5971,81.9102,82.8176;17,43.0444,48.1701,53.6211,59.4123,65.5405,71.9123,77.8613,81.3432,82.291;18,42.0566,47.1523,52.5893,58.3928,64.5693,71.0385,77.1586,80.801,81.7946;19,41.1301,46.1915,51.6082,57.4149,63.6282,70.1832,76.4694,80.2888,81.3249;20,40.2594,45.2826,50.6735,56.4754,62.7151,69.3449,75.7909,79.7964,80.8794;25,36.5944,41.383,46.5836,52.2717,58.5199,65.3728,72.4961,77.5464,78.9412;30,33.8032,38.3097,43.255,48.7333,54.8516,61.7351,69.3036,75.4938,77.3576;35,31.6347,35.8355,40.4928,45.712,51.6242,58.4176,66.224,73.5021,76.0186;40,29.923,33.8117,38.1691,43.107,48.7736,55.4053,63.3319,71.5012,74.8588;45,28.5508,32.133,36.1925,40.8439,46.2477,52.6764,60.7465,69.469,73.8358;50,27.4316,30.7209,34.4937,38.8646,44.0024,50.2056,58.3013,67.4142,72.9206;55,26.5003,29.5155,33.0182,37.1215,41.9989,47.9667,55.9575,65.3596,72.0927;60,25.7074,28.4699,31.7224,35.5748,40.2029,45.9341,53.6839,63.3818,71.337;65,25.015,27.5472,30.5704,34.1908,38.5841,44.0829,51.4583,61.5403,70.6417;70,24.3943,26.7182,29.533,32.9406,37.1153,42.3901,49.4406,59.7052,69.998;75,23.8233,25.96,28.5866,31.8003,35.773,40.8347,47.67,57.8662,69.3988;80,23.2855,25.2546,27.7115,30.7494,34.5367,39.3975,46.0173,56.017,68.8382;85,22.7684,24.5877,26.8922,29.7709,33.3886,38.0617,44.4695,54.1554,68.3116;90,22.2629,23.9485,26.116,28.8509,32.314,36.8124,43.0143,52.3908,67.8152;95,21.7622,23.3286,25.3728,27.9778,31.3001,35.6368,41.641,50.8049,67.3455;100,21.2618,22.7213,24.6547,27.1424,30.3366,34.524,40.3396,49.2819,66.9;110,20.2494,21.5271,23.27,25.5555,28.5273,32.4504,37.9192,46.41,66.0721;120,19.2111,20.3404,21.927,24.0462,26.8338,30.5335,35.6958,43.7453,65.3164;130,18.1422,19.1487,20.6055,22.5872,25.2216,28.7323,33.6267,41.2598,64.6211;140,17.0436,17.9469,19.2949,21.1621,23.6684,27.0192,31.6803,38.929,63.9774;150,15.9189,16.7343,17.9905,19.7616,22.1604,25.3752,29.8338,36.7323,63.3782;160,14.7727,15.513,16.6911,18.3811,20.6889,23.7879,28.0705,34.6528,62.8176;170,13.6105,14.2861,15.3976,17.0187,19.2491,22.2488,26.3783,32.6766,62.291;180,12.4375,13.0574,14.1116,15.674,17.8383,20.7525,24.7484,30.7923,61.7946;190,11.2587,11.8305,12.8355,14.3474,16.4548,19.2951,23.1743,28.9906,61.3249;200,10.0789,10.6091,11.5716,13.04,15.0982,17.8742,21.651,27.2636,60.8794;225,7.1497,7.5987,8.4779,9.8608,11.822,14.4704,18.0408,23.2324,59.8564;250,4.2851,4.6765,5.496,6.8173,8.7083,11.2632,14.6804,19.5497,58.9412;275,1.5113,1.8606,2.6365,3.9122,5.7508,8.2357,11.5367,16.1562,58.1133;300,-1.1618,-0.844,-0.101,1.1401,2.9388,5.37,8.5812,13.0044,57.3576;325,-3.7357,-3.4421,-2.7244,-1.51,0.2576,2.6468,5.7875,10.0543,56.6623;350,-6.2185,-5.9439,-5.246,-4.0528,-2.3099,0.0461,3.1303,7.2711,56.0186;375,-8.6223,-8.3628,-7.6809,-6.5046,-4.7815,-2.4525,0.5862,4.6241,55.4194;400,-10.9609,-10.7138,-10.0448,-8.8823,-7.1754,-4.8683,-1.8671,2.086,54.8588;425,-13.2487,-13.0119,-12.3534,-11.2023,-9.5087,-7.2198,-4.2496,-0.3672,54.3322;450,-15.4996,-15.2712,-14.6216,-13.48,-11.7975,-9.5238,-6.5795,-2.7566,53.8358;475,-17.7264,-17.5053,-16.8631,-15.7295,-14.0563,-11.7954,-8.8731,-5.1005,53.3661;500,-19.9407,-19.7256,-19.0897,-17.9629,-16.2977,-14.0477,-11.1441,-7.4146,52.9206;525,-22.1523,-21.9424,-21.3119,-20.1909,-18.5325,-16.2918,-13.4042,-9.7118,52.4968;550,-24.3691,-24.1636,-23.5378,-22.4218,-20.7693,-18.5366,-15.6629,-12.0027,52.0927;575,-26.597,-26.3955,-25.7737,-24.662,-23.0147,-20.789,-17.9273,-14.2951,51.7066;600,-28.8402,-28.642,-28.0237,-26.9159,-25.273,-23.0534,-20.2023,-16.5946,51.337;625,-31.1003,-30.9052,-30.29,-29.1855,-27.5465,-25.3323,-22.4905,-18.9043,50.9824;650,-33.3772,-33.1848,-32.5723,-31.4707,-29.8352,-27.6258,-24.7921,-21.2251,50.6417;675,-35.6687,-35.4786,-34.8685,-33.7696,-32.1371,-29.9319,-27.1056,-23.5555,50.3139;700,-37.9706,-37.7825,-37.1746,-36.078,-34.4483,-32.2468,-29.4269,-25.892,49.998;725,-40.2767,-40.0905,-39.4846,-38.39,-36.7627,-34.5646,-31.7506,-28.2293,49.6932;750,-42.5795,-42.395,-41.7907,-40.6981,-39.073,-36.8779,-34.0691,-30.56,49.3988;775,-44.8698,-44.6868,-44.0841,-42.9931,-41.37,-39.1777,-36.3736,-32.8755,49.114;800,-47.1374,-46.9558,-46.3545,-45.265,-43.6437,-41.4539,-38.654,-35.1659,48.8382;825,-49.3712,-49.1908,-48.5908,-47.5027,-45.8831,-43.6954,-40.8994,-37.4204,48.5709;850,-51.5597,-51.3804,-50.7816,-49.6947,-48.0765,-45.8909,-43.0984,-39.6276,48.3116;875,-53.6911,-53.5128,-52.915,-51.8293,-50.2125,-48.0287,-45.2394,-41.7762,48.0598;900,-55.754,-55.5766,-54.9798,-53.8952,-52.2796,-50.0975,-47.3111,-43.8548,47.8152;925,-57.7376,-57.5611,-56.9652,-55.8815,-54.2671,-52.0865,-49.3029,-45.8528,47.5772;950,-59.6323,-59.4566,-58.8615,-57.7787,-56.1653,-53.9862,-51.205,-47.7607,47.3455;975,-61.4296,-61.2546,-60.6603,-59.5783,-57.9658,-55.788,-53.0091,-49.5702,47.1199;1000,-63.1227,-62.9485,-62.3548,-61.2736,-59.662,-57.4854,-54.7086,-51.2747,46.9;],...
     [78,10,20,37.5,75,150,300,600,1200,0;1,89.9759,92.1812,94.6355,97.3845,100.3181,103.1205,105.2426,106.3566,106.9;2,80.2751,83.0908,86.0804,89.4069,92.913,96.3309,98.9814,100.3265,100.8794;3,74.1662,77.5296,80.8983,84.623,88.4947,92.2978,95.2961,96.7966,97.3576;4,69.5184,73.3548,77.0492,81.1099,85.2792,89.3842,92.6604,94.2887,94.8588;5,65.6994,69.9206,73.9419,78.2871,82.714,87.0769,90.5957,92.3397,92.9206;6,62.4359,66.9578,71.3181,75.9006,80.5545,85.1471,88.8884,90.7434,91.337;7,59.6477,64.3322,69.04,73.8179,78.6719,83.4731,87.4242,89.3896,89.998;8,57.4622,62.1663,67.0245,71.961,76.9905,81.9827,86.135,88.2125,88.8382;9,55.541,60.276,65.2164,70.2803,75.4623,80.6296,84.9768,87.1698,87.8152;10,53.8305,58.5796,63.5772,68.7419,74.0555,79.3829,83.9196,86.2324,86.9;11,52.2925,57.0431,62.0785,67.3218,72.7475,78.221,82.9421,85.3798,86.0721;12,50.8985,55.6409,60.6986,66.0017,71.522,77.1281,82.0287,84.5966,85.3164;13,49.6271,54.3533,59.4208,64.7677,70.3668,76.0927,81.1676,83.8713,84.6211;14,48.4613,53.1646,58.2316,63.6088,69.2725,75.1058,80.3499,83.1949,83.9774;15,47.3878,52.0625,57.1201,62.5159,68.2315,74.1608,79.5684,82.5602,83.3782;16,46.3956,51.0366,56.0774,61.4817,67.2378,73.2523,78.8175,81.9616,82.8176;17,45.4757,50.0784,55.0959,60.4999,66.2863,72.3758,78.0928,81.3943,82.291;18,44.6205,49.181,54.1694,59.5653,65.3728,71.528,77.3905,80.8544,81.7946;19,43.8236,48.3381,53.2925,58.6736,64.4938,70.7059,76.7078,80.3386,81.3249;20,43.0795,47.5448,52.4605,57.8207,63.6463,69.9071,76.0421,79.8443,80.8794;25,40.004,44.1826,48.8533,54.0388,59.8016,66.2012,72.907,77.6202,78.9412;30,37.7291,41.5769,45.9457,50.8779,56.4721,62.8741,69.9951,75.6752,77.3576;35,36.0039,39.5036,43.5451,48.1831,53.5444,59.8502,67.2389,73.887,76.0186;40,34.6672,37.8222,41.5341,45.8633,50.9567,57.0964,64.6186,72.1757,74.8588;45,33.6089,36.4369,39.8327,43.8571,48.6692,54.5959,62.1363,70.4886,73.8358;50,32.751,35.2784,38.3815,42.1169,46.6493,52.3351,59.8006,68.7959,72.9206;55,32.0373,34.2942,37.1326,40.6017,44.8663,50.2988,57.6184,67.0869,72.0927;60,31.4265,33.4436,36.047,39.2754,43.2902,48.4685,55.592,65.3661,71.337;65,30.8881,32.6948,35.0918,38.1058,41.8917,46.8231,53.7182,63.6471,70.6417;70,30.3994,32.0229,34.24,37.0646,40.6435,45.3407,51.9897,61.9468,69.998;75,29.9437,31.4084,33.4695,36.1276,39.521,43.9998,50.3962,60.2808,69.3988;80,29.5085,30.8359,32.7621,35.2744,38.5026,42.7801,48.9254,58.6618,68.8382;85,29.0848,30.2938,32.1034,34.4881,37.5695,41.6633,47.5649,57.0983,68.3116;90,28.6659,29.773,31.4816,33.7548,36.7061,40.633,46.3021,55.5954,67.8152;95,28.2473,29.2668,30.8878,33.0631,35.8992,39.6753,45.1251,54.1551,67.3455;100,27.8259,28.7699,30.3146,32.4041,35.138,38.7781,44.023,52.7772,66.9;110,26.9674,27.7901,29.2093,31.1563,33.719,37.1263,42.0052,50.2009,66.0721;120,26.0832,26.8139,28.1347,29.9696,32.3964,35.6152,40.1836,47.843,65.3164;130,25.1727,25.8315,27.0731,28.8184,31.1365,34.2019,38.509,45.6743,64.6211;140,24.2379,24.8384,26.0148,27.6876,29.9178,32.8577,36.9455,43.6664,63.9774;150,23.2816,23.8337,24.9553,26.5686,28.7269,31.5637,35.4671,41.794,63.3782;160,22.3066,22.818,23.893,25.457,27.5561,30.3073,34.0553,40.0356,62.8176;170,21.3159,21.7929,22.828,24.3507,26.4006,29.0805,32.697,38.3736,62.291;180,20.3124,20.7607,21.7615,23.2493,25.258,27.8779,31.3828,36.7938,61.7946;190,19.2991,19.7237,20.6949,22.1533,24.1272,26.6964,30.1059,35.2845,61.3249;200,18.2792,18.6842,19.6301,21.0634,23.0078,25.5338,28.8614,33.8366,60.8794;225,15.719,16.0893,16.9866,18.3719,20.2597,22.7025,25.8708,30.439,59.8564;250,13.1734,13.5217,14.386,15.738,17.5864,19.9709,23.0258,27.2958,58.9412;275,10.6669,10.9999,11.8414,13.1699,14.99,17.3322,20.3044,24.3519,58.1133;300,8.2112,8.5328,9.3581,10.6694,12.4686,14.7795,17.6898,21.5682,57.3576;325,5.809,6.1216,6.9351,8.2336,10.017,12.3041,15.1671,18.9148,56.6623;350,3.4573,3.7627,4.5674,5.856,7.6273,9.8959,12.7221,16.3671,56.0186;375,1.1498,1.4493,2.2471,3.5281,5.2899,7.5439,10.3409,13.9041,55.4194;400,-1.1217,-0.8271,-0.0347,1.2403,2.9944,5.2368,8.0104,11.5076,54.8588;425,-3.3663,-3.0757,-2.2876,-1.0176,0.7304,2.9634,5.718,9.1612,54.3322;450,-5.593,-5.3056,-4.5211,-3.2551,-1.5122,0.713,3.4519,6.8506,53.8358;475,-7.8104,-7.5258,-6.7443,-5.4815,-3.7428,-1.5241,1.2019,4.5634,53.3661;500,-10.0263,-9.7441,-8.965,-7.7051,-5.9699,-3.7565,-1.0415,2.2888,52.9206;525,-12.2477,-11.9675,-11.1905,-9.9329,-8.2006,-5.9918,-3.286,0.0178,52.4968;550,-14.4801,-14.2015,-13.4263,-12.1707,-10.441,-8.2361,-5.5381,-2.257,52.0927;575,-16.7277,-16.4506,-15.6769,-14.423,-12.6954,-10.4939,-7.8027,-4.541,51.7066;600,-18.9934,-18.7175,-17.9451,-16.6927,-14.967,-12.7683,-10.083,-6.8381,51.337;625,-21.2784,-21.0036,-20.2323,-18.9812,-17.2571,-15.061,-12.3807,-9.1505,50.9824;650,-23.5825,-23.3086,-22.5384,-21.2883,-19.5657,-17.3717,-14.6959,-11.4785,50.6417;675,-25.9039,-25.6309,-24.8615,-23.6124,-21.891,-19.699,-17.0271,-13.821,50.3139;700,-28.2394,-27.9671,-27.1985,-25.9503,-24.23,-22.0397,-19.3712,-16.1751,49.998;725,-30.5843,-30.3127,-29.5447,-28.2973,-26.578,-24.3892,-21.7238,-18.5365,49.6932;750,-32.9326,-32.6616,-31.8943,-30.6475,-28.9291,-26.7416,-24.0789,-20.8995,49.3988;775,-35.2772,-35.0067,-34.2399,-32.9938,-31.2761,-29.0898,-26.4296,-23.2572,49.114;800,-37.6099,-37.3398,-36.5735,-35.3279,-33.6109,-31.4257,-28.7676,-25.6016,48.8382;825,-39.9215,-39.6519,-38.886,-37.641,-35.9246,-33.7403,-31.0842,-27.9238,48.5709;850,-42.2027,-41.9334,-41.1679,-39.9233,-38.2075,-36.0241,-33.3698,-30.2145,48.3116;875,-44.4432,-44.1743,-43.4092,-42.165,-40.4497,-38.2671,-35.6143,-32.4638,48.0598;900,-46.6332,-46.3646,-45.5998,-44.356,-42.6411,-40.4592,-37.808,-34.6616,47.8152;925,-48.7627,-48.4944,-47.7299,-46.4864,-44.772,-42.5907,-39.9408,-36.7983,47.5772;950,-50.8223,-50.5542,-49.79,-48.5468,-46.8328,-44.6521,-42.0034,-38.8644,47.3455;975,-52.8032,-52.5353,-51.7714,-50.5285,-48.8148,-46.6347,-43.9871,-40.8513,47.1199;1000,-54.6976,-54.43,-53.6663,-52.4236,-50.7102,-48.5307,-45.884,-42.7512,46.9;],...
     [78,10,20,37.5,75,150,300,600,1200,0;1,97.9306,102.2627,105.6108,106.7395,106.889,106.8996,106.9,106.9,106.9;2,88.3787,92.5718,96.9796,99.9909,100.7902,100.8745,100.8792,100.8794,100.8794;3,82.6476,86.6248,91.1362,95.2488,97.0622,97.3375,97.3568,97.3576,97.3576;4,78.4824,82.2984,86.7461,91.3484,94.1925,94.8049,94.8564,94.8587,94.8588;5,75.1674,78.8694,83.2339,88.032,91.7194,92.8052,92.9149,92.9204,92.9206;6,72.3836,76.0071,80.3,85.1676,89.4705,91.1242,91.3254,91.3366,91.337;7,69.9618,73.5338,77.7725,82.658,87.3835,89.6447,89.9769,89.9974,89.998;8,67.8014,71.3434,75.5448,80.429,85.4365,88.2963,88.8027,88.8369,88.8382;9,65.8384,69.3675,73.5467,78.4249,83.6191,87.035,87.7592,87.813,87.8152;10,64.0296,67.5598,71.7299,76.6036,81.9225,85.8333,86.8161,86.8966,86.9;11,62.3445,65.8876,70.0597,74.9332,80.3372,84.6749,85.9514,86.0669,86.0721;12,60.7612,64.3269,68.5106,73.389,78.8532,83.5509,85.1486,85.3085,85.3164;13,59.2632,62.8599,67.0632,71.9516,77.4605,82.4569,84.3945,84.6099,84.6211;14,57.8383,61.4727,65.7024,70.6058,76.1496,81.3915,83.679,83.9617,83.9774;15,56.4767,60.1547,64.4164,69.3392,74.9122,80.3542,82.9939,83.3566,83.3782;16,55.1712,58.8974,63.1958,68.1418,73.7404,79.3453,82.3324,82.7888,82.8176;17,53.9158,57.6941,62.0329,67.0053,72.6275,78.3649,81.689,82.2531,82.291;18,52.7058,56.5391,60.9214,65.9228,71.5675,77.413,81.0595,81.7455,81.7946;19,51.5374,55.428,59.8559,64.8884,70.555,76.4891,80.4404,81.2624,81.3249;20,50.4077,54.357,58.8321,63.8972,69.5854,75.5925,79.829,80.8006,80.8794;25,45.2875,49.5269,54.2382,59.4711,65.2627,71.4917,76.8414,78.7303,78.9412;30,40.8768,45.3652,50.2812,55.6642,61.548,67.8872,73.9176,76.8957,77.3576;35,37.1078,41.7585,46.8096,52.2946,58.2455,64.6526,71.086,75.1515,76.0186;40,33.912,38.619,43.7193,49.2453,55.2295,61.6829,68.371,73.4151,74.8588;45,31.1999,35.8627,40.9297,46.4358,52.4173,58.9001,65.7671,71.6434,73.8358;50,28.941,33.4601,38.41,43.8318,49.7696,56.2637,63.2721,69.8376,72.9206;55,27.0419,31.3434,36.1111,41.3954,47.2519,53.7374,60.8636,67.9995,72.0927;60,25.4331,29.4654,34.0016,39.1049,44.8456,51.3007,58.5257,66.1388,71.337;65,24.0517,27.784,32.0556,36.9444,42.5395,48.9414,56.2464,64.2638,70.6417;70,22.8443,26.2633,30.2511,34.9021,40.3267,46.6525,54.0174,62.3812,69.998;75,21.7665,24.8731,28.5697,32.9685,38.2028,44.4308,51.8342,60.4964,69.3988;80,20.7837,23.5882,26.9955,31.1353,36.1649,42.2754,49.6949,58.614,68.8382;85,19.8692,22.3886,25.5151,29.3953,34.2106,40.1864,47.5997,56.7386,68.3116;90,19.0033,21.2582,24.1171,27.7419,32.3375,38.1641,45.5498,54.8748,67.8152;95,18.1718,20.1846,22.7918,26.1689,30.5432,36.2092,43.5472,53.0271,67.3455;100,17.3649,19.1583,21.5312,24.6709,28.8251,34.3217,41.5938,51.1999,66.9;110,15.8004,17.2196,19.1777,21.8791,25.6062,30.7483,37.8425,47.6238,66.0721;120,14.2796,15.4017,17.0139,19.3301,22.658,27.4392,34.3085,44.1751,65.3164;130,12.791,13.6806,15.0093,16.9939,19.9582,24.3857,30.9987,40.8749,64.6211;140,11.3318,12.0417,13.1416,14.8457,17.4861,21.5771,27.9155,37.7356,63.9774;150,9.9033,10.476,11.3938,12.8648,15.2224,19.001,25.057,34.7629,63.3782;160,8.5084,8.9775,9.7526,11.0331,13.1486,16.6437,22.4179,31.9574,62.8176;170,7.1502,7.5423,8.2071,9.3347,11.2469,14.4898,19.9894,29.3161,62.291;180,5.8312,6.1667,6.7479,7.7549,9.4996,12.5225,17.7597,26.8334,61.7946;190,4.5527,4.8474,5.3664,6.2803,7.8897,10.7237,15.7143,24.5024,61.3249;200,3.3147,3.5809,4.0547,4.8983,6.4004,9.0749,13.8366,22.3149,60.8794;225,0.3873,0.6184,1.0326,1.7748,3.1049,5.4885,9.76,17.4148,59.8564;250,-2.3346,-2.1064,-1.7041,-0.9947,0.2563,2.462,6.3514,13.2094,58.9412;275,-4.8982,-4.6558,-4.2402,-3.5274,-2.3048,-0.2082,3.3876,9.5546,58.1133;300,-7.3438,-7.0791,-6.6388,-5.9063,-4.6878,-2.6608,0.7112,6.3206,57.3576;325,-9.7008,-9.4113,-8.9431,-8.1859,-6.9615,-4.9812,-1.7788,3.4004,56.6623;350,-11.9885,-11.6752,-11.1804,-10.3992,-9.1658,-7.2183,-4.1434,0.7117,56.0186;375,-14.2197,-13.8851,-13.367,-12.5646,-11.3222,-9.3982,-6.419,-1.8055,55.4194;400,-16.4028,-16.0501,-15.5123,-14.6923,-13.4419,-11.5351,-8.6276,-4.194,54.8588;425,-18.544,-18.1764,-17.6225,-16.7881,-15.5309,-13.6369,-10.7832,-6.484,54.3322;450,-20.6491,-20.2693,-19.7025,-18.8564,-17.5937,-15.7091,-12.8962,-8.698,53.8358;475,-22.7239,-22.3343,-21.7569,-20.9016,-19.6343,-17.7567,-14.9749,-10.8533,53.3661;500,-24.7745,-24.3769,-23.7911,-22.9283,-21.6573,-19.785,-17.0269,-12.964,52.9206;525,-26.8071,-26.4031,-25.8106,-24.9417,-23.6676,-21.7993,-19.0596,-15.0421,52.4968;550,-28.8281,-28.4189,-27.8209,-26.9472,-25.6705,-23.8052,-21.0798,-17.0976,52.0927;575,-30.8436,-30.4301,-29.8276,-28.9499,-27.6712,-25.8082,-23.094,-19.1396,51.7066;600,-32.8589,-32.4419,-31.8358,-30.9549,-29.6744,-27.8131,-25.1078,-21.1755,51.337;625,-34.8788,-34.459,-33.8499,-32.9663,-31.6843,-29.8244,-27.1261,-23.2115,50.9824;650,-36.9072,-36.485,-35.8735,-34.9876,-33.7044,-31.8456,-29.153,-25.2525,50.6417;675,-38.9468,-38.5227,-37.9091,-37.0214,-35.7371,-33.8791,-31.191,-27.3022,50.3139;700,-40.9992,-40.5735,-39.9582,-39.0689,-37.7838,-35.9264,-33.2421,-29.3626,49.998;725,-43.065,-42.6379,-42.0212,-41.1306,-39.8447,-37.9879,-35.3066,-31.4349,49.6932;750,-45.1435,-44.7152,-44.0973,-43.2057,-41.9191,-40.0627,-37.384,-33.5187,49.3988;775,-47.2329,-46.8037,-46.1848,-45.2922,-44.0051,-42.149,-39.4724,-35.6125,49.114;800,-49.3305,-48.9005,-48.2807,-47.3874,-46.0998,-44.244,-41.5691,-37.7138,48.8382;825,-51.4324,-51.0017,-50.3812,-49.4873,-48.1993,-46.3437,-43.6703,-39.8188,48.5709;850,-53.5341,-53.1028,-52.4817,-51.5871,-50.2988,-48.4435,-45.7713,-41.923,48.3116;875,-55.6299,-55.1982,-54.5765,-53.6815,-52.3929,-50.5377,-47.8666,-44.021,48.0598;900,-57.7139,-57.2817,-56.6596,-55.7642,-54.4753,-52.6203,-49.9501,-46.1069,47.8152;925,-59.7794,-59.3468,-58.7243,-57.8285,-56.5395,-54.6845,-52.0152,-48.1739,47.5772;950,-61.8193,-61.3864,-60.7636,-59.8675,-58.5783,-56.7234,-54.0548,-50.2153,47.3455;975,-63.8266,-63.3934,-62.7703,-61.8739,-60.5846,-58.7298,-56.0617,-52.2238,47.1199;1000,-65.7939,-65.3605,-64.7371,-63.8406,-62.5511,-60.6964,-58.0288,-54.1922,46.9;],...
@@ -1204,16 +1294,16 @@ argj = [finf fsup];
 
 for j=(finf == fsup)+1:2
     idx = figureStep6(:,3)==argj(j);
-   
+
 
     figureStep7 = figureStep6(idx,:);
-    
-    
+
+
     %Following 2 lines can be swapped interchangebly line 62 is best used
     %for hundredes of successful excel look ups.
-%    tabulatedValues = xlsread('Rec_P_1546_2_Tab_values.xls',figureStep7(1,4), 'B6:K84');
+    %    tabulatedValues = xlsread('Rec_P_1546_2_Tab_values.xls',figureStep7(1,4), 'B6:K84');
     tabulatedValues = exceltables{figureStep7(1,4)};
-    
+
 
     % Step 8: Obtain the field strength exceeded at 50% locations for a
     % receiving/mobile antenna at the height of representative clutter, R,
@@ -1237,6 +1327,7 @@ else
 end
 
 return
+end
 
 
 
@@ -1245,11 +1336,11 @@ return
 % receiving/mobile antenna at the height of representative clutter, R,
 % above ground for the required distance and transmitting/base antenna
 % height as follows:
-    % Step 8.1: For a transmitting/base antenna height h1 equal to or
-    % greater than 10 m follow Steps 8.1.1 to 8.1.6:
-        
+% Step 8.1: For a transmitting/base antenna height h1 equal to or
+% greater than 10 m follow Steps 8.1.1 to 8.1.6:
+
 % function E = step81(tabulatedValues,h1,dinf,dsup,d,Emax)
-%   
+%
 % tabulatedValues a matrix of value from a figure 1-24 of excel sheet of
 %   values for recommendation. Expected range from table 'B6:K84' may still
 %   work with different range value. results unexpected.
@@ -1258,22 +1349,22 @@ return
 %   page 38 otherwise NaN will be returned
 % d is the distance
 % Emax is the max field strength if necessary to limit the result.
-% 
+%
 % returns field strength otherwise NaN.
 
 function E = step81(tabulatedValues,h1,dinf,dsup,d,Emax)
-    
+
 % Rev   Date        Author                          Description
 %-------------------------------------------------------------------------------
 % v2    08JUN13     Ivica Stevanovic, OFCOM         Initial version
-% v1    13AUG09     Jef Statham, Industry Canada    Original version    
-    
+% v1    13AUG09     Jef Statham, Industry Canada    Original version
+
 % double check h1
 if ~(h1 >= 10)
-    fclose all;
+     
     error('h1 is less than 10 m for step81')
 end
-% obatin hsup and hinf
+% obtain hsup and hinf
 height = [10, 20, 37.5, 75, 150, 300, 600, 1200];
 [hinf, hsup] = searchclosest(height,h1);
 
@@ -1282,8 +1373,8 @@ arg = [hinf hsup];
 
 for x=(hinf == hsup)+1:2
     Eh1(x) = step814_815(tabulatedValues,arg(x),dinf,dsup,d);
-    
-end 
+
+end
 
 if hinf ~= hsup
     Eh1 = Eh1(1)+(Eh1(2)-Eh1(1))*log10(h1/hinf)/log10(hsup/hinf); %equ'n (8)
@@ -1297,35 +1388,35 @@ else
     E = Eh1;
     return
 end
-E = NaN;
-return% function
+end
+
 
 % 4 Application of transmitting/base antenna height, h1
-% The value of h1 controls which curve or curves are selected from which to 
-% obtain field-strength values, and the interpolation or extrapolation 
+% The value of h1 controls which curve or curves are selected from which to
+% obtain field-strength values, and the interpolation or extrapolation
 % which may be necessary. The following cases are distinguished.
 
-    % 4.1 Transmitting/base antenna height, h1, in the range 10 m to 3 000m
-    % If the value of h1 coincides with one of the eight heights for which
-    % curves are provided, namely 10, 20, 37.5, 75, 150, 300, 600 or 1 200m
-    % the required field strength may be obtained directly from the plotted 
-    % curves or the associated tabulations. Otherwise the required field
-    % strength should be interpolated or extrapolated from field strengths 
-    % obtained from two curves using:
-    % E = Einf +(Esup ?Einf )log(h1 /hinf )/log(hsup /hinf ) dB(?V/m) (8)
-    % where:
-        % hinf : 600 m if h1 > 1 200 m, otherwise the nearest nominal effective
-        % height below h1
-        % hsup : 1 200 m if h1 > 1 200 m, otherwise the nearest nominal 
-        % effective height above h1
-        % Einf : field-strength value for hinf at the required distance
-        % Esup : field-strength value for hsup at the required distance.
-    % The field strength resulting from extrapolation for h1 > 1 200 m 
-    % should be limited if necessary such that it does not exceed the 
-    % maximum defined in § 2.
-    % This Recommendation is not valid for h1 > 3 000 m.
-    
-%%   
+% 4.1 Transmitting/base antenna height, h1, in the range 10 m to 3 000m
+% If the value of h1 coincides with one of the eight heights for which
+% curves are provided, namely 10, 20, 37.5, 75, 150, 300, 600 or 1 200m
+% the required field strength may be obtained directly from the plotted
+% curves or the associated tabulations. Otherwise the required field
+% strength should be interpolated or extrapolated from field strengths
+% obtained from two curves using:
+% E = Einf +(Esup ?Einf )log(h1 /hinf )/log(hsup /hinf ) dB(?V/m) (8)
+% where:
+% hinf : 600 m if h1 > 1 200 m, otherwise the nearest nominal effective
+% height below h1
+% hsup : 1 200 m if h1 > 1 200 m, otherwise the nearest nominal
+% effective height above h1
+% Einf : field-strength value for hinf at the required distance
+% Esup : field-strength value for hsup at the required distance.
+% The field strength resulting from extrapolation for h1 > 1 200 m
+% should be limited if necessary such that it does not exceed the
+% maximum defined in § 2.
+% This Recommendation is not valid for h1 > 3 000 m.
+
+%%
 function E = step814_815(tabulatedValues,h1,dinf,dsup,d)
 % Step 8.1.4: Obtain the field strength exceeded at 50% locations
 % for a receiving/mobile antenna at the height of representative
@@ -1338,7 +1429,7 @@ function E = step814_815(tabulatedValues,h1,dinf,dsup,d)
 % using the method given in Annex 5, § 5.
 %
 % function E = step814_815(tabulatedValues,h1,dinf,dsup)
-% if only step 8.1.4 is needed pass the same value for dinf and dsup. 
+% if only step 8.1.4 is needed pass the same value for dinf and dsup.
 %
 % tabulatedValues a matrix of value from a figure 1-24 of excel sheet of
 %   values for recommendation. Expected range from table 'B6:K84' may still
@@ -1363,16 +1454,15 @@ if dsup ~= dinf
     Esup = eLookUp(:,1)==dsup; %% STI: this seems to be redundant ?
     Esup = eLookUp(Esup,2);
     E = Einf+(Esup-Einf)*log10(d/dinf)/log10(dsup/dinf);    %equ'n (13)
-    
+
     return
 else
     E = Esup;
-    
+
     return
 end
-E = NaN;
-return
-    
+end
+
 
 function E = step82(tabulatedValues,h1,dinf,dsup,d,path,fnom,Emaxvalue,t)
 % Step 8.2: For a transmitting/base antenna height h1 less than 10 m
@@ -1406,7 +1496,7 @@ function E = step82(tabulatedValues,h1,dinf,dsup,d,path,fnom,Emaxvalue,t)
 % v1    13AUG09     Jef Satham, Industry Canada     Initial version
 
 if (h1 >= 10)
-    fclose all;
+     
     error('incorrect h1 value for step82: Greater than 10 m');
 end
 %look up figure values for E10 and E20
@@ -1426,17 +1516,17 @@ Ezero = E10 + 0.5*(C1020 + Ch1neg10);       % equ'n (9a)
 
 if strcmp(path, 'Land')
     if h1 >= 0
-        
+
         E = Ezero + 0.1*h1*(E10 - Ezero);          % equ'n (9)
         return
-    elseif h1 < 0  
+    elseif h1 < 0
         % STI: the following piece of code from Jeff seems to be wrong and
         % it is commented out and replaced by the code below the commented
         % section
         % v = V(fnom,h1);
         % J = 6.9+20*log10(sqrt((v-0.1)^2+1)+v-0.1);  % equ'n (12a)
         % E = step814_815(tabulatedValues,0,dinf,dsup,d) + (6.03-J); <-- this was wrong
-        
+
         v = V(fnom,h1);
         if v>-0.7806
             J = 6.9+20*log10(sqrt((v-0.1)^2+1)+v-0.1);  % equ'n (12a)
@@ -1444,12 +1534,12 @@ if strcmp(path, 'Land')
             J=0;
         end
         E = Ezero+6.03-J;  % equ'n (12)
-        
+
         return
     end
 elseif strcmp(path, 'Sea')
     if h1 < 1
-        fclose all;
+         
         error('h1 cannot be less than 1 m for calculating sea path');
     end
     Dh1 = D06(fnom,h1,10);             % equ'n (10a)
@@ -1458,7 +1548,7 @@ elseif strcmp(path, 'Sea')
         E = Emaxvalue;                   % equ'n (11a)
         return
     elseif (d >Dh1) && (d < D20)
-        [dinf1 dsup1] = FindDNominals(D20);
+        [dinf1, dsup1] = FindDNominals(D20);
         E10D20 = step814_815(tabulatedValues,10,dinf1,dsup1,D20);
         E20D20 = step814_815(tabulatedValues,20,dinf1,dsup1,D20);
         ED20 = E10D20+(E20D20 - E10D20)*log10(h1/10)/log10(20/10);
@@ -1482,12 +1572,11 @@ elseif strcmp(path, 'Sea')
         E = E1*(1-Fs)+E2*Fs;                        % equ'n (11c)
         return
     end %end if d <= Dh1
+else
+    
+    error('no path selected in step82');
 end %end if path land
-
-fclose all;
-error('no path selected in step82');
-return%% end function
-%%
+end
 
 function deg = V(Kv,h1)
 % function deg = V(Kv,h1)
@@ -1501,17 +1590,17 @@ function deg = V(Kv,h1)
 
 if Kv == 100
     deg = 1.35*atand(-h1/9000); %equ'n (12c and 12b)
-return
+    return
 elseif Kv == 600
     deg = 3.31*atand(-h1/9000); %equ'n (12c and 12b)
-return
+    return
 elseif Kv == 2000
     deg = 6*atand(-h1/9000);    %equ'n (12c and 12b)
-return
+    return
+else
+    error('Invalid frequency input');
 end
-fclose all;
-error('Invalid frequency input');
-return
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1539,12 +1628,10 @@ function E = Step_11a_rrc06(Eland, Esea, dland, dsea)
 % Verify that Eland and dland, Esea and dsea have the same length
 
 if length(Eland) ~= length(dland)
-    fclose all;
     error('Vectors Eland and dland must be of the same length.');
 end
 
 if length(Esea) ~= length(dsea)
-    fclose all;
     error('Vectors Esea and dsea must be of the same length.');
 end
 
@@ -1571,24 +1658,25 @@ if(casea)
 
     % In case there is no land/sea or land/coastal-land transitions (meaning
     % that either dlT=0 or dsT=0) the following procedure is used
-    
+
     E=sum(dd.*EE)/dtotal;  % eqn (22)
 
 else
-    
+
     Fsea = dsT/dtotal;
-    
+
     Delta = sum(Esea.*dsea)/dsT - sum(Eland.*dland)/dlT; % eqn (26)
-    
+
     V = max(1.0, 1.0+Delta/40);
-    
+
     A0 = 1- (1-Fsea).^(2/3);
-    
+
     A = A0.^V;
-    
+
     E = (1-A) * sum(Eland.*dland)/dlT + A * sum(Esea.*dsea)/dsT;  % eqn (23)
 end
 return
+end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1629,7 +1717,6 @@ if(strcmp(area,'Urban') || strcmp(area,'Dense Urban') || strcmp(area,'Rural') ||
 elseif (strcmp(area,'Sea'))
     path='Sea';
 else
-    fclose all;
     error('Wrong area! Allowed area types: Sea, Rural, Suburban, Urban, or Dense Urban.');
 end
 
@@ -1651,148 +1738,148 @@ K_h2=3.2+6.2*log10(f);
 % end
 
 if (strcmp(path, 'Land'))
-    
+
     if (h2<1)
-        fclose all;
+         
         error('This recommendation is not valid for receiving/mobile antenna height h2 < 1 m when adjacent to land.');
     end
-    
+
     % if the receiving/mobile antenna is on land account should first be
     % taken of the elevation angle of the arriving ray by calculating a
     % modified representative clutter height Rp (m) given by:
-    
+
     Rp = (1000*d*R2-15*h1)/(1000*d-15);
-    
+
     % the value of Rp must be limited if necessary such that it is not less
     % than 1 m
-    
+
     if (Rp < 1)
         Rp=1;
         warning('The value of modified representative clutter height is smaller than 1 m.');
         warning ('Setting the value to 1 m.');
     end
-    
+
     if (strcmp(area,'Urban') || strcmp(area,'Dense Urban') || strcmp(area,'Suburban') )
-        
+
         % When the receiving/mobile antenna is in an urban environment the
         % corection is then given by:
-        
+
         if (h2 < Rp)
-            
+
             h_dif= Rp - h2;
             K_nu = 0.0108*sqrt(f);
-            
-            theta_clut = atand(h_dif/27); 
-                        
+
+            theta_clut = atand(h_dif/27);
+
             nu = K_nu*sqrt(h_dif*theta_clut);
-            
+
             %J_nu = 6.9 + 20*log10(sqrt((nu-0.1).^2+1) + nu - 0.1);
             Correction = 6.03 - J(nu); % (28a)
-            
+
         else
-            
+
             Correction=K_h2*log10(h2/Rp); %(28b)
-            
+
         end
-        
+
         if (Rp < 10)
             % In cases of an urban environment where Rp is less than 10 m,
             % the correction given by equation (28a) or (28b) should be reduced by
-            
+
             Correction = Correction - K_h2*log10(10/Rp);
-            
+
         end
-        
-        
+
+
     else
-        
+
         % When the receiving/mobile antenna is on land in a rural or open
         % environment, the correction is given by equation (28b) for all
         % values of h2 with Rp set to 10 m
         Rp = 10;
         Correction=K_h2*log10(h2/10);
-        
+
     end
-    
+
 else  % receiver adjacent to sea
-    
+
     if (h2<3)
-        fclose all;
+         
         error('This recommendation is not valid for receiving/mobile antenna height h2 < 3 m when adjacent to sea.');
     end
-    
+
     % In the following, the expression "adjacent to sea" applies to cases
     % where the receiving/mobile antenna is either over sea, or is
     % immediately adjacent to the sea, with no significant obstruction in
     % the direction of the transmitting/base station.
-    
+
     if (h2 >= 10)
-        
+
         % Where the receiving/mobile antenna is adjacent to sea for h2>=10m,
         % the correction should be calculated using equation (28b) wih
         % Rp set to 10
         Rp = 10;
         Correction = K_h2*log10(h2/10);
-        
+
     else
-        
+
         % Where the receiving/mobile antenna is adjacent to sea for h2<10m,
         % an alternative method should be used, based upon the path lengths
         % at which 0.6 of the first Fresnel zone is just clear of
         % obstruction by the sea surface. An approximate method for
         % calculating this distance is given in Paragraph 18
-        
+
         % distance at which the path just has 0.6 Fresnel clearance for h2
         % = 10 m calculated as D06(f, h1, 10):
-        
+
         d10 = D06(f, h1, 10);
-        
+
         % Distance at which the path just has 0.6 Fresnel clearance for the
         % required value of h2 calculated as D06(f,h1,h2):
         dh2 = D06(f, h1, h2);
-        
+
         % Correction for the required value of h2 at distance d10 using
         % equation (27b) with Rp set to 10m
         Rp = 10;
         C10 = K_h2*log10(h2/10);
-        
-        
+
+
         if (d >= d10)
-            
+
             % If the required distance is equal to or greater than d10, then
             % again the correction for the required value of h2 should be
             % calculated using equation (28b) with Rp set to 10
             Rp = 10;
             Correction = C10;
-            
+
         else
-            
+
             % if the required distance is less than d10, then the
             % correction to be added to the field strength E should be
             % calculated using
-            
+
             if (d <= dh2)
-                
+
                 Correction = 0;
-                
+
             else %  dh2 < d < d10
-                
+
                 Correction = C10*log10(d/dh2)/log10(d10/dh2);
-                
+
             end
-            
+
             %
-            
+
         end
     end
-    
+
 end
-
-
 return
 
+end
+
 function Lb = Step_20a(f, E)
-% E = Step_20a(f,E) 
+% E = Step_20a(f,E)
 %
 % Step 20: If required, convert field strength to equivalent
 % basic transmission loss for the path using the method given in Annex 5,
@@ -1808,9 +1895,8 @@ function Lb = Step_20a(f, E)
 
 Lb = 139.3 - E + 20*log10(f);
 
-return 
-
-
+return
+end
 
 function [e, nu] = Step_12a(f,tca)
 % e=Step_12a(f,tca);
@@ -1832,7 +1918,7 @@ function [e, nu] = Step_12a(f,tca)
 %--------------------------------------------------------------------------
 % v3    03OCT14     Ivica Stevanovic, OFCOM         Make sure that
 %                                                   Correction(tca) = Correction(0.55) dB for tca < 0.55
-%                                                   Correction(tca) = Correction(40) for tca > 40                                                                                         
+%                                                   Correction(tca) = Correction(40) for tca > 40
 % v2    18SEP13     Ivica Stevanovic, OFCOM         Re-written to limit between 0.55 and 40
 % v1    12AUG13     Ivica Stevanovic, OFCOM         Initial version
 
@@ -1845,7 +1931,6 @@ end
 if (tca<0.55)
     tca = 0.55;
 end
-
 
 nup = 0.036*sqrt(f);
 nu  = 0.065*tca*sqrt(f);
@@ -1865,36 +1950,38 @@ e=J1-J2;
 %     e=0;
 % end
 return
+end
 
 function outVal = J(nu)
 % outVal = J(nu)
-% This function computes the value of equation (12a) 
-% according to Annex 5 Paragraph 4.3 of ITU-R P.1546-6 
+% This function computes the value of equation (12a)
+% according to Annex 5 Paragraph 4.3 of ITU-R P.1546-6
 %
 % Rev   Date        Author                          Description
 %-------------------------------------------------------------------------------
 
 % v1    12AUG13     Ivica Stevanovic, OFCOM         Initial version
 
-    outVal = 6.9+20*log10(sqrt((nu-0.1).^2+1)+nu-0.1);
+outVal = 6.9+20*log10(sqrt((nu-0.1).^2+1)+nu-0.1);
 
 return
+end
 
 
 function [e,thetaS] = Step_13a(d,f,t,eff1,eff2)
 % [e,thetaS] = Step_13a(d,f,t,eff1,eff2)
-% Step 13: Calculate the estimated field strength due to tropospheric 
-% scattering using the method given in Annex 5 § 13 of ITU-R P.1546-6 and, 
+% Step 13: Calculate the estimated field strength due to tropospheric
+% scattering using the method given in Annex 5 § 13 of ITU-R P.1546-7 and,
 % if necessary, limit the final predicted field strength accordingly.
 % Input variables
 % d - path length (km)
 % f - required frequency (MHz)
 % t - required percentage of time (%)
 % eff1 - the h1 terminal's terrain clearance angle in degrees calculated
-%       using the method in Paragraph 4.3 case a, whether or not h1 is 
+%       using the method in Paragraph 4.3 case a, whether or not h1 is
 %       negative (degrees)
 % eff2 - the h2 terminal's clearance angel in degrees as calculated in
-%        Paragraph 11, noting that this is the elevation angle relative to 
+%        Paragraph 11, noting that this is the elevation angle relative to
 %        the local horizontal (degrees)
 %
 % Rev   Date        Author                          Description
@@ -1902,7 +1989,7 @@ function [e,thetaS] = Step_13a(d,f,t,eff1,eff2)
 % v2    12AUG13     Ivica Stevanovic, OFCOM         Modified version
 % v1    13AUG09     Jef Statham, Industry Canada    Initial version
 
-thetaS = 180*d/pi/4*3/6370 + eff1 + eff2;       %equ'n (35)
+thetaS = 180*d/pi/4*3/6371 + eff1 + eff2;       %equ'n (35)
 if thetaS < 0
     thetaS = 0;
 end
@@ -1912,6 +1999,57 @@ e = 24.4-20*log10(d)-10*thetaS ...
     10.1*(-log10(0.02*t))^0.7; %equ'n (36),(36a),(36b)
 
 return
+end
+
+function [e,thetaS] = Step_13b(d,f,t,eff1,eff2)
+% [e,thetaS] = Step_13b(d,f,t,eff1,eff2)
+% Step 13: Calculate the estimated field strength due to tropospheric
+% scattering using the method given in Annex 5 § 13 of ITU-R P.1546-7 and,
+% if necessary, limit the final predicted field strength accordingly.
+% Input variables
+% d - path length (km)
+% f - required frequency (MHz)
+% t - required percentage of time (%)
+% eff1 - the h1 terminal's terrain clearance angle in degrees calculated
+%       using the method in Paragraph 4.3 case a, whether or not h1 is
+%       negative (degrees)
+% eff2 - the h2 terminal's clearance angel in degrees as calculated in
+%        Paragraph 11, noting that this is the elevation angle relative to
+%        the local horizontal (degrees)
+%
+% Rev   Date        Author                          Description
+%-------------------------------------------------------------------------------
+% v3    06JUL23     Ivica Stevanovic, OFCOM         Extended for t>50%
+% v2    12AUG13     Ivica Stevanovic, OFCOM         Modified version
+% v1    13AUG09     Jef Statham, Industry Canada    Initial version
+
+thetaS = 180*d/pi/4*3/6371 + eff1 + eff2;       %equ'n (35)
+if thetaS < 0
+    thetaS = 0;
+end
+e = 24.4-20*log10(d)-10*thetaS ...
+    -(5*log10(f)-2.5*(log10(f)-3.3)^2)+...
+    0.15*325+...
+    10.1*(-log10(0.02*t))^0.7; %equ'n (36),(36a),(36b)
+
+if (t>50)
+    t = 100-t;
+
+    et = 24.4-20*log10(d)-10*thetaS ...
+    -(5*log10(f)-2.5*(log10(f)-3.3)^2)+...
+    0.15*325+...
+    10.1*(-log10(0.02*t))^0.7; %equ'n (36),(36a),(36b)
+
+    e50 = 24.4-20*log10(d)-10*thetaS ...
+    -(5*log10(f)-2.5*(log10(f)-3.3)^2)+...
+    0.15*325+...
+    10.1*(-log10(0.02*50))^0.7; %equ'n (36),(36a),(36b)
+
+    e = 2*e50-et;
+end
+
+return
+end
 
 
 function Correction = Step_15a(ha, R1, f)
@@ -1919,16 +2057,16 @@ function Correction = Step_15a(ha, R1, f)
 % if at a lower height above ground than the antenna, correctg for its
 % effect using method given in Annex 5, § 10 of ITU-R P.1546-6.
 %
-% This correction does not apply for an open/uncluttered transmitter. 
-% The correction should be used in all other cases, including when the antenna 
-% is above the clutter height. The correction is zero when the terminal is 
-% higher than a frequency-dependent clearance height above the clutter. 
+% This correction does not apply for an open/uncluttered transmitter.
+% The correction should be used in all other cases, including when the antenna
+% is above the clutter height. The correction is zero when the terminal is
+% higher than a frequency-dependent clearance height above the clutter.
 % Input variables are
 % ha - transmitting/base terminal antenna height above ground (m) (i.e., height of the mast)
-% R  - representative of the height of the ground cover surrounding the 
-%      transmitting/base antenna, subject to a minimum height value of 10 m (m) 
-%      Examples of reference heights are 20 m for an urban area, 30 m for 
-%      a dense urban area and 10 m for a suburban area. For sea paths 
+% R  - representative of the height of the ground cover surrounding the
+%      transmitting/base antenna, subject to a minimum height value of 10 m (m)
+%      Examples of reference heights are 20 m for an urban area, 30 m for
+%      a dense urban area and 10 m for a suburban area. For sea paths
 %      the notional value of R is 10 m.
 % f  - frequency (MHz)
 %
@@ -1938,7 +2076,7 @@ function Correction = Step_15a(ha, R1, f)
 
 K_nu = 0.0108*sqrt(f);
 hdif1 = ha-R1;
-theta_clut=atand(hdif1/27); % 
+theta_clut=atand(hdif1/27); %
 
 if (R1 >= ha)
     nu=K_nu*sqrt(hdif1*theta_clut);
@@ -1952,18 +2090,19 @@ if nu > -0.7806
     Correction=-J(nu);
 end
 return
+end
 
 
 function Correction = Step_16a(ha, h2, d, varargin)
 % Where terrain information is available
-% Correction = Step_16a(ha, h2, d, htter, hrter) 
+% Correction = Step_16a(ha, h2, d, htter, hrter)
 % Where terrain information is not available
 % Correction = Step_16a(ha,h2,d);
 %
 % Step 16: A correction is required to take account of the difference in
 % height between the two antennas, according to Annex 5, Section 14
 % Input variables are
-% ha - transmitting/base terminal antenna height above ground (m) 
+% ha - transmitting/base terminal antenna height above ground (m)
 % h2 - receiving/mobile terminal antenna height above ground (m)
 % d  - horizontal path distance (km)
 % htter - terrain height in meters above sea level at the transmitter/base
@@ -1982,7 +2121,7 @@ if (nargin == 3)
 
     d_slope=dslope(ha,h2,d);
 else
-       
+
     d_slope=dslope(ha,h2,d,varargin{:});
 
 end
@@ -1990,21 +2129,21 @@ end
 Correction = 20*log10(d/d_slope);
 
 return
+end
 
 
 function E = Step_17a(ha, h2, d, Esup, varargin)
 % Where terrain information is available
-% Correction = Step_17a(ha, h2, d, Esup, htter, hrter) 
+% Correction = Step_17a(ha, h2, d, Esup, htter, hrter)
 % Where terrain information is not available
 % Correction = Step_17a(ha,h2,d,Esup);
 % According to Annex 5, Section 15
 % Step 17: Extrapolation to distances less than 1 km
 % Input variables are
-% ha - transmitting/base terminal antenna height above ground (m) 
+% ha - transmitting/base terminal antenna height above ground (m)
 % h2 - receiving/mobile terminal antenna height above ground (m)
 % d  - horizontal path distance (km)
-% Esup - the field strength given computed by steps 1-16 of P.1546-6 (2013)
-%        (dB(uV/m))
+% Esup - the field strength given computed by steps 1-16 of P.1546-7 (dB(uV/m))
 % htter - terrain height in meters above sea level at the transmitter/base
 %         terminal (m)
 % hrter - terrain height in meters above sea level at the receiving/mobile
@@ -2031,7 +2170,7 @@ function E = Step_17a(ha, h2, d, Esup, varargin)
 % v1    12AUG13     Ivica Stevanovic, OFCOM         Initial version
 
 if (isempty(ha) || isempty(h2) || isempty(d) || isempty(Esup))
-    fclose all;
+     
     error('Input arguments ha, h2, d, or Esup not defined.')
 end
 
@@ -2047,17 +2186,18 @@ dsup = 1;
 % strength E is given by:
 
 if (d <= dinf)
-   E=106.9-20*log10(d_slope); 
+    E=106.9-20*log10(d_slope);
 else
-   dinf_slope = dslope(ha,h2,dinf,varargin{:});
-   dsup_slope = dslope(ha,h2,dsup,varargin{:});
-   Einf = 106.9-20*log10(dinf_slope);
-   E = Einf + (Esup - Einf)*log10(d_slope/dinf_slope)/log10(dsup_slope/dinf_slope);
+    dinf_slope = dslope(ha,h2,dinf,varargin{:});
+    dsup_slope = dslope(ha,h2,dsup,varargin{:});
+    Einf = 106.9-20*log10(dinf_slope);
+    E = Einf + (Esup - Einf)*log10(d_slope/dinf_slope)/log10(dsup_slope/dinf_slope);
 end
 return
+end
 
 function E = Step_18a(Emedian, q, f, pathinfo, wa, area)
-% E = Step_18a(Emedian, q, f, pathinfo, area) 
+% E = Step_18a(Emedian, q, f, pathinfo, area)
 %
 % Step 18: If the field strength at a receiving/mobile antenna adjacent to
 % land exceeded at percentage locations other than 50% is required, correct
@@ -2068,7 +2208,7 @@ function E = Step_18a(Emedian, q, f, pathinfo, wa, area)
 %            steps 1-17 (dB(uV/m))
 % q  - percentage location (betwee 1% and 99%)
 % f  - required frequency (MHz)
-% pathinfo: 0/1     0 - no terrain profile information available, 
+% pathinfo: 0/1     0 - no terrain profile information available,
 %                   1 - terrain information available
 % wa -      the width of the square area over which the variability applies (m)
 %           typically in the range between 50 m and 1000 m
@@ -2085,7 +2225,7 @@ function E = Step_18a(Emedian, q, f, pathinfo, wa, area)
 % v2    30OCT19     Ivica Stevanovic, OFCOM         Updated according to P.1546-6
 
 if (q < 1 || q > 99)
-    fclose all;
+     
     error('The percentage location out of band [1%, 99%].')
 end
 
@@ -2098,40 +2238,41 @@ if (pathinfo == 0)
         sigma_L = 12;
     elseif (strcmp(area,'Sea'))
         sigma_L = 0;
-    else        
-      fclose all;
-      error('Wrong area! Allowed area types: Sea, Rural, Suburban, Urban, or Dense Urban.');
+    else
+         
+        error('Wrong area! Allowed area types: Sea, Rural, Suburban, Urban, or Dense Urban.');
     end
 
 else % pathinfo == 1
     %sigma_L = ((0.0024*f)/1000.0 + 0.52)*wa.^(0.28);
-    
+
     if(strcmp(area,'Rural') || strcmp(area,'Suburban') || strcmp(area,'Urban') || strcmp(area,'Dense Urban'))
         % land area only
         sigma_L = ((0.024*f)/1000.0 + 0.52)*wa.^(0.28);
     elseif(strcmp(area,'Sea'))
         sigma_L = 0;
-    else        
-      fclose all;
-      error('Wrong area! Allowed area types: Sea, Rural, Suburban, Urban, or Dense Urban.');
+    else
+         
+        error('Wrong area! Allowed area types: Sea, Rural, Suburban, Urban, or Dense Urban.');
     end
 end
 
 E=Emedian+Qi(q/100)*sigma_L;
 
-return 
+return
+end
 
 
 function outVal = dslope(ha, h2, d, varargin)
 % Where terrain information is available
-% outVal = dslope(ha, h2, d, htter, hrter) 
+% outVal = dslope(ha, h2, d, htter, hrter)
 % Where terrain information is not available
 % outVal = dslope(ha,h2,d);
 %
 % This function computes slope distance as given by equations (37a,b) in ITU-R
 % P.1546-6
 % Input variables are
-% ha - transmitting/base terminal antenna height above ground (m) 
+% ha - transmitting/base terminal antenna height above ground (m)
 % h2 - receiving/mobile terminal antenna height above ground (m)
 % d  - horizontal path distance (km)
 % htter - terrain height in meters above sea level at the transmitter/base
@@ -2146,25 +2287,24 @@ function outVal = dslope(ha, h2, d, varargin)
 
 
 if (nargin == 3) % function call without terrain information
-    
+
     outVal=sqrt(d*d+1e-6*(ha-h2).^2);
-    
+
 elseif (nargin == 5) % function call with terrain information
-       
+
     htter = varargin{1};
     hrter = varargin{2};
-    
+
     outVal=sqrt(d*d+1e-6*((ha+htter)-(h2+hrter)).^2);
-   
+
 else
     help dslope;
-    fclose all;
+     
     error('Function called with wrong number of input variables');
 end
 
-
 return
-
+end
 
 
 function out = Qi(x)
@@ -2175,25 +2315,28 @@ function out = Qi(x)
 % v2    08JUN13     Ivica Stevanovic, OFCOM         Initial version
 % v1    13AUG09     Jef Statham, Industry Canada    Original version
 
-    
+
 if x<= .5
     out = T(x)-C(x);%(39a)
 else
     out = -(T(1-x)-C(1-x)); %(39b)
 end
-   
+
 return
+end
 
-    function outT = T(y)
-        outT = sqrt(-2*log(y));     %(39c)
-    return
+function outT = T(y)
+outT = sqrt(-2*log(y));     %(39c)
+return
+end
 
-    function outC = C(z)
-        C0 = 2.515517;
-        C1 = 0.802853;
-        C2 = 0.010328;
-        D1 = 1.432788;
-        D2 = 0.189269;
-        D3 = 0.001308;
-        outC = (((C2*T(z)+C1)*T(z))+C0)/(((D3*T(z)+D2)*T(z)+D1)*T(z)+1);%(39d)
-    return
+function outC = C(z)
+C0 = 2.515517;
+C1 = 0.802853;
+C2 = 0.010328;
+D1 = 1.432788;
+D2 = 0.189269;
+D3 = 0.001308;
+outC = (((C2*T(z)+C1)*T(z))+C0)/(((D3*T(z)+D2)*T(z)+D1)*T(z)+1);%(39d)
+return
+end

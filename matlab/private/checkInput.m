@@ -17,21 +17,21 @@ end
 
 in=data.f;
 if (~isnan(in))
-    if(in<30 || in> 3000)
-    warning( 'Frequency f must be defined within 30 MHz - 3000 MHz' );
+    if(in<30 || in> 6000)
+    warning( 'Frequency f must be defined within 30 MHz - 6000 MHz' );
     alldefined=false;
     return
     end
 else
-    warning( 'Frequency f must be defined within 30 MHz - 3000 MHz' );
+    warning( 'Frequency f must be defined within 30 MHz - 6000 MHz' );
     alldefined=false;
     return
 end
 
 in=data.t;
-errormsg='Time percentage must be defined within 1% - 50%';
+errormsg='Time percentage must be defined within 1% - 99%';
 if (~isnan(in))
-    if(in<1 || in> 50)
+    if(in<1 || in> 99)
     warning(errormsg);
     alldefined=false;
     return

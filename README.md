@@ -1,10 +1,12 @@
 # MATLAB/Octave Implementation of Recommendation ITU-R P.1546
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6206015.svg)](https://doi.org/10.5281/zenodo.6206015)
+[//]: < [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6206015.svg)](https://doi.org/10.5281/zenodo.6206015) >
 
-This code repository contains a MATLAB/Octave software implementation of  [Recommendation ITU-R P.1546-6](https://www.itu.int/rec/R-REC-P.1546/en) with a method for point-to-area predictions for terrestrial services in the frequency range 30 MHz to 4000 MHz.  
+This is a development branch implementing Recommendation ITU-R P.1546-7.
 
-This version of the code corresponds to the reference version approved by ITU-R Working Party 3K and published on [ITU-R SG 3 Software, Data, and Validation Web Page](https://www.itu.int/en/ITU-R/study-groups/rsg3/Pages/iono-tropo-spheric.aspx) as digital supplement to [Recommendation ITU-R P.1546](https://www.itu.int/rec/R-REC-P.1546/en).
+[//]: <This code repository contains a MATLAB/Octave software implementation of  [Recommendation ITU-R P.1546-7](https://www.itu.int/rec/R-REC-P.1546/en) with a method for point-to-area predictions for terrestrial services in the frequency range 30 MHz to 4000 MHz.>
+
+[//]: <This version of the code corresponds to the reference version approved by ITU-R Working Party 3K and published on [ITU-R SG 3 Software, Data, and Validation Web Page](https://www.itu.int/en/ITU-R/study-groups/rsg3/Pages/iono-tropo-spheric.aspx) as digital supplement to [Recommendation ITU-R P.1546](https://www.itu.int/rec/R-REC-P.1546/en).>
 
 The following table describes the structure of the folder `./matlab/` containing the MATLAB/Octave implementation of Recommendation ITU-R P.1546.
 
@@ -37,12 +39,12 @@ Name1,Value1,...,NameN,ValueN:
 
 | Variable          | Type   | Units | Limits       | Description  |
 |-------------------|--------|-------|--------------|--------------|
-| `f`               | scalar double | MHz   | 30 ≤ `f` ≤ 4000 | Frequency   |
-| `t         `      | scalar double | %     | 1 ≤ `p` ≤ 50 | Time percentage for which the calculated basic transmission loss is not exceeded |
+| `f`               | scalar double | MHz   | 30 ≤ `f` ≤ 6000 | Frequency   |
+| `t         `      | scalar double | %     | 1 ≤ `p` ≤ 50, with approximation to 99% | Time percentage for which the calculated basic transmission loss is not exceeded |
 | `heff`          | scalar double | m    |   | Effective height of the transmitting/base antenna, height over the average level of the ground between distances of 3 and 15 km from the transmitting/base antenna in the direction of the receiving/mobile antenna.|
 | `h2`           | scalar double    | m      |             |  Receiving/mobile antenna height above ground level |
 | `R2`           | scalar double    | m      |              |  Representative clutter height around receiver. Typical values: `R2`=10 for `area`='Rural' or 'Suburban' or 'Sea',  `R2`=15 for `area`='Urban', `R2`=20 for `area`='Dense Urban'    |
-| `area`           | string    |       | 'Land, 'Sea', 'Warm', 'Cald'            |  Area around the receiver.|
+| `area`           | string    |       | 'Land, 'Sea', 'Warm', 'Cold'            |  Area around the receiver.|
 | `d_v`               | array double | km    | `sum(d_v)` ≤ ~1000 | Array of horizontal path lengths over different path zones starting from transmitter/base station terminal.|
 | `path_c`           | cell string    |       |     'Land', 'Sea', 'Warm', 'Cold'         |  Cell of strings defining the path zone for each given path lenght in `d_v` starting from the transmitter/base terminal. |
 | `pathinfo`           | scalar int    |      |        0, 1    |  0 - no terrain profile information available, 1 - terrain information available |

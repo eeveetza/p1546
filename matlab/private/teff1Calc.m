@@ -1,10 +1,9 @@
-function teff1 = teff1Calc(d,h,hT,hR)
+function teff1 = teff1Calc(d,h,hT)
 % Terrain clearance angle calculator for transmitting/base antenna
-% teff1 = teff1Calc(d,h,hT,hR)
+% teff1 = teff1Calc(d,h,hT)
 % where
 % d - vector of distances (km) measured from the transmitter 
 % h - height profile (m), i.e., height at distance d(i)
-% hR - height of the receiver antenna above ground (m)
 % hT - height of the transmitter antenna above ground (m)
 %
 % This function calculates the terrain clearance angle (tca) in [deg] using

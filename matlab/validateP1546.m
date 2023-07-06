@@ -391,7 +391,7 @@ for iname = 1 : length(filenames)
         if(~isempty(measID))
             
             % compute the terrain clearance angle
-            tca = tcaCalc(x,h_gamsl,hhRx,hhTx);
+            tca = tcaCalc(x,h_gamsl,hhRx);
             sg3db.tca = tca;
             if(flag_plot)
                 plotTca(ax,x,h_gamsl,hhRx,tca);
@@ -399,7 +399,7 @@ for iname = 1 : length(filenames)
             end
             
             % compute the terrain clearance angle at transmitter side
-            teff1 = teff1Calc(x,h_gamsl,hhTx,hhRx);
+            teff1 = teff1Calc(x,h_gamsl,hhTx);
             sg3db.eff1 = teff1;
             if(flag_plot)
                 plotTeff1(ax,x,h_gamsl,hhTx,teff1);
