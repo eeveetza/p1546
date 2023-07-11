@@ -120,7 +120,10 @@ function [E, L] = P1546FieldStrMixed(f,t,heff,h2,R2,area,d_v,path_c,pathinfo,var
 
 % Rev   Date        Author                          Description
 %-------------------------------------------------------------------------------
-% v17   05JUL23     Ivica Stevanovic, OFCOM         Align the code with Rec. ITU-R P.1546-7
+% v17   05JUL23     Ivica Stevanovic, OFCOM         Draft revision of Rec. ITU-R P.1546-6 (3/119Rev1) 
+%                                                   extension of upper frequency to 6 GHz,
+%                                                   approxiation for time percentages above 50% and below 99%, 
+%                                                   Tx correction applied only for paths >= 1 km
 % v16   12JUL21     Ivica Stevanovic, OFCOM         Simplified handling of optional input arguments and
 %                                                   renaming subfolder "src" into "private" which is automatically in the MATLAB search path
 %                                                   (as suggested by K. Konstantinou, Ofcom UK)
@@ -690,13 +693,15 @@ end
 % Step 15: If there is clutter around the transmitting/base terminal, even
 % if at lower height above ground than the antenna, correct for its effect
 % using the  method given in Annex 5, Sec. 10
-if(~isempty(ha) && ~isempty(R1))
-    if(debug==1)
-        disp('15: Correct for the transmitter/base clutter.')
-    end
-    E = E + Step_15a(ha,R1,f);
-    if (debug == 1)
-        fprintf(fid_log,['Tx clutter correction (dB),§10 (30),15,' floatformat], Step_15a(ha,R1,f));
+if (d >= 1)
+    if(~isempty(ha) && ~isempty(R1))
+        if(debug==1)
+            disp('15: Correct for the transmitter/base clutter.')
+        end
+        E = E + Step_15a(ha,R1,f);
+        if (debug == 1)
+            fprintf(fid_log,['Tx clutter correction (dB),§10 (30),15,' floatformat], Step_15a(ha,R1,f));
+        end
     end
 end
 
@@ -1132,9 +1137,9 @@ end%end for (percentage)
 % Sec 7: Interpolation of field strength as a function of percentage time
 
 if tinf ~= tsup
-    Qsup = Qi(tsup/100);
-    Qinf = Qi(tinf/100);
-    Qt = Qi(t/100);
+    Qsup = Qi2(tsup/100);
+    Qinf = Qi2(tinf/100);
+    Qt =   Qi2(t/100);
     E = Ep(2)*(Qinf-Qt)/(Qinf-Qsup)+Ep(1)*(Qt-Qsup)/(Qinf-Qsup);    %equ'n (16a)
 
 else
@@ -2257,7 +2262,7 @@ else % pathinfo == 1
     end
 end
 
-E=Emedian+Qi(q/100)*sigma_L;
+E=Emedian+Qi2(q/100)*sigma_L;
 
 return
 end
@@ -2338,5 +2343,82 @@ D1 = 1.432788;
 D2 = 0.189269;
 D3 = 0.001308;
 outC = (((C2*T(z)+C1)*T(z))+C0)/(((D3*T(z)+D2)*T(z)+D1)*T(z)+1);%(39d)
+return
+end
+
+function x = Qi2(p)
+% x = Qi2(p) computes inverse complementary cumulative normal distribution
+% according to Recommendation ITU-R P.1057-7, Section 3
+% with an absolute approximation error of less than 1.2e-9
+
+% MATLAB had ercinv, so the following expression can be used
+x = erfcinv(2*p) * sqrt(2);
+
+% % otherwise
+% 
+% if (p > 0 && p <= 0.5)
+% 
+%     x = -invU(p);
+% 
+% else
+% 
+%     q = 1 - p;
+%     x = invU(q);
+% 
+% end
+
+return
+end
+
+function y = invU(p)
+%y = invU(p) computes an auxiliary function U^-1(p)
+% according to Recommendation ITU-R P.1057-7, Section 3
+
+
+if ( p >= 0 && p <= 0.02425)
+
+    t = sqrt(-2*ln(p));
+
+    c0 = 2.938163982698783;
+    c1 = 4.374664141464968;
+    c2 = -2.549732539343734;
+    c3 = -2.400758277161838;
+    c4 = -0.3223964580411365;
+    c5 = -0.007784894002430293;
+
+    d1 = 3.754408661907416;
+    d2 = 2.445134137142996;
+    d3 = 0.3224671290700398;
+    d4 = 0.007784695709041462;
+
+    y = (c0 + c1 * t + c2 * t^2 + c3 * t^3 + c4 * t^4 + c5 * t^5)/ ...
+        (1  + d1 * t + d2 * t^2 + d3 * t^3 + d4 * t^4);
+
+
+elseif (p > 0.0245 && p <= 0.5)
+
+    t = (p - 0.5)^2;
+
+    a0 = 2.506628277459239;
+    a1 = -30.66479806614716;
+    a2 = 138.3577518672690;
+    a3 = -275.9285104469687;
+    a4 = 220.9460984245205;
+    a5 = -39.69683028665376;
+
+    b1 = -13.28068155288572;
+    b2 = 66.80131188771972;
+    b3 = -155.6989798598866;
+    b4 = 161.5858368580409;
+    b5 = -54.47609879822406;
+
+    y = (p - 0.5) * (a0 + a1 * t + a2 * t^2 + a3 * t^3 + a4 * t^4 + a5 * t^5)/ ...
+        (1  + b1 * t + b2 * t^2 + b3 * t^3 + b4 * t^4 + b5 * t^5);
+
+else
+    error('Argument out of bounds.')
+
+end
+
 return
 end

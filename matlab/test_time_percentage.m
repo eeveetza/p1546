@@ -102,7 +102,7 @@ for ii = 1:length(t)
 end
 
 hold on
-plot(t, Lb_ts, 'LineWidth', 1, 'Color', 'r', 'LineStyle', '--');
+plot(t, Lb_ts, 'LineWidth', 0.5, 'Color', 'r', 'LineStyle', '-');
 
 xlabel('Time Percentage (%)')
 ylabel('Transmission Loss (dB)')

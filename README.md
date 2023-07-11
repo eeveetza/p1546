@@ -2,7 +2,7 @@
 
 [//]: < [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6206015.svg)](https://doi.org/10.5281/zenodo.6206015) >
 
-This is a development branch implementing Recommendation ITU-R P.1546-7.
+This is a development branch implementing draft revision of Recommendation ITU-R P.1546-6 as set out in document [3/119(Rev.1)](https://www.itu.int/md/meetingdoc.asp?lang=en&parent=R19-SG03-C-0119).
 
 [//]: <This code repository contains a MATLAB/Octave software implementation of  [Recommendation ITU-R P.1546-7](https://www.itu.int/rec/R-REC-P.1546/en) with a method for point-to-area predictions for terrestrial services in the frequency range 30 MHz to 4000 MHz.>
 

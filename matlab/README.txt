@@ -1,4 +1,4 @@
-P1546 Version 6.2 (22.05.22)
+P1546 Development Version 7.0 
 
 MATLAB implementation of Recommendation ITU-R P.1546-6
 
@@ -32,6 +32,14 @@ Files and subfolders in the distribution .zip package.
 
 UPDATES AND FIXES
 -----------------
+Development Version 7.0
+    - Draft revision of Rec. ITU-R P.1546-6 (3/119Rev1):
+    - Extension of upper frequency to 6 GHz,
+    - Approxiation for time percentages above 50% and below 99%, 
+    - Tx correction applied only for paths >= 1 km
+    - Included antisymmetric formula for troposcatter field strength
+    - Validation examples are not updated
+
 Version 6.2 (22.05.22)
     - Simplified handling of optional input arguments
     - Renaming subfolder "src" into "private" which is automatically in the MATLAB search path

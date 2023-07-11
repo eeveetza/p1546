@@ -20,7 +20,7 @@ Terrain clearance angle tca (deg),§11 (31),,-0.130217,
 
 # Computed Parameters,Ref,Step,Value,
 Maximum field strength Emax (dBuV/m),§2 (1),,87.5374,
-Field strength (dBuV/m),§8 (17),11,87.2258,
+Field strength (dBuV/m),§8 (17),11,87.226,
 TCA nu,§11 (32c),12,1.0725,
 TCA correction (dB),§11 (32a),12,0.0466141,
 Path scattering theta_s (deg),§13 (35),13,0,
