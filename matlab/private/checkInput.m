@@ -17,13 +17,13 @@ end
 
 in=data.f;
 if (~isnan(in))
-    if(in<30 || in> 3000)
-    warning( 'Frequency f must be defined within 30 MHz - 3000 MHz' );
+    if(in<30 || in> 4000)
+    warning( 'Frequency f must be defined within 30 MHz - 4000 MHz' );
     alldefined=false;
     return
     end
 else
-    warning( 'Frequency f must be defined within 30 MHz - 3000 MHz' );
+    warning( 'Frequency f must be defined within 30 MHz - 4000 MHz' );
     alldefined=false;
     return
 end
